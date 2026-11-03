@@ -230,7 +230,19 @@ html body .stage-actions .sym,html body .scene-actions .mode-symbol{display:none
 .panetabs::-webkit-scrollbar,.panel-tabs::-webkit-scrollbar{display:none}
 .panetabs button,.panel-tabs button{display:flex!important;align-items:center!important;justify-content:center!important;flex:1 1 0!important;min-width:0!important;line-height:1.3!important;min-height:42px!important;padding:10px 6px!important;border-radius:9px!important;background:transparent!important}
 </style>
-</head>
+<style id="sac-inspection-upgrade">
+/* Information is displayed outside the product; the diagram is a close-up, not decoration. */
+.part-inspector{display:none;align-items:center;gap:14px;background:#f4eee6;color:#342a23;border:1px solid #e1d2c1;border-radius:13px;padding:13px 14px;margin-bottom:12px;animation:inspectorReveal .28s cubic-bezier(.22,.8,.2,1) both}
+.part-inspector.show{display:flex}
+.part-inspector__art{flex:0 0 96px;width:96px;height:70px;border-radius:9px;background:#fffaf3;display:grid;place-items:center;overflow:hidden}
+.part-inspector__art svg{width:94px;height:64px;display:block}
+.part-inspector__copy{min-width:0;flex:1}
+.part-inspector__title{font-size:14px;line-height:1.25;font-weight:800;margin-bottom:5px;letter-spacing:-.02em}
+.part-inspector__desc{font-size:11px;line-height:1.5;color:#766657;font-weight:550}
+@keyframes inspectorReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:730px){.part-inspector{padding:12px;margin:0 0 12px;gap:12px}.part-inspector__art{flex-basis:78px;width:78px;height:62px}.part-inspector__art svg{width:78px;height:62px}.part-inspector__title{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.part-inspector{animation:none}}
+</style><style id="sac-mobile-controls">@media(max-width:730px){.scene-actions .word{display:inline!important}.scene-actions{gap:2px!important;max-width:calc(100vw - 16px)!important}.scene-actions button{padding:8px 7px!important;font-size:10px!important}.panel-scroll{scroll-padding-top:16px}}</style></head>
 <body data-s-a-c-product="idd">
 <div class="app-shell">
 <header aria-label="Main navigation" class="shared-header">
@@ -328,7 +340,7 @@ html body .stage-actions .sym,html body .scene-actions .mode-symbol{display:none
 <p class="panel-footnote">The animation is for customer understanding and does not represent a verified production workflow.</p>
 </div>
 </div>
-<footer class="panel-footer"><div aria-live="polite" class="stage-toast product-feedback" id="stageToast" role="status"></div><div class="footer-eyebrow">Your selection</div><strong id="summaryTitle">Single Door · 1300 × 2100 mm</strong><span id="summarySub">Anthracite grey · Straight aluminium · No extra</span><div class="footer-actions"><button class="save-btn" id="saveJson">↓   Save</button><button class="review-btn" id="reviewBtn">Review configuration <span>→</span></button></div><div class="disclaimer">Illustrative configuration — no payment required.</div></footer>
+<footer class="panel-footer"><div class="part-inspector" id="partInspector" aria-live="polite"><div class="part-inspector__art"></div><div class="part-inspector__copy"><div class="part-inspector__title"></div><div class="part-inspector__desc"></div></div></div><div aria-live="polite" class="stage-toast product-feedback" id="stageToast" role="status"></div><div class="footer-eyebrow">Your selection</div><strong id="summaryTitle">Single Door · 1300 × 2100 mm</strong><span id="summarySub">Anthracite grey · Straight aluminium · No extra</span><div class="footer-actions"><button class="save-btn" id="saveJson">↓   Save</button><button class="review-btn" id="reviewBtn">Review configuration <span>→</span></button></div><div class="disclaimer">Illustrative configuration — no payment required.</div></footer>
 </aside>
 </main>
 </div>
@@ -376,10 +388,10 @@ function tabs(which){document.querySelectorAll('[data-tab]').forEach(b=>{const a
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>tabs(b.dataset.tab)));
 $('variantChips').addEventListener('click',e=>{let b=e.target.closest('[data-variant]');if(!b)return;state.variant=b.dataset.variant;state.open=state.variant==='double'?0:15;state.zoom=1;updateUI();fit();toast(state.variant==='single'?'Single screen selected':'Two-panel double screen selected')});
 $('widthChips').addEventListener('click',e=>{let b=e.target.closest('[data-width]');if(!b)return;state.widthBase=Number(b.dataset.width);updateUI();toast('Standard width · '+totalMm()+' mm')});
-$('frameSwatches').addEventListener('click',e=>{let b=e.target.closest('[data-color]');if(!b)return;state.color=b.dataset.color;updateUI();toast(palette[state.color].name+' · '+palette[state.color].ral)});
-$('guideShapes').addEventListener('click',e=>{let b=e.target.closest('[data-shape]');if(!b)return;state.guideShape=b.dataset.shape;updateUI();pulseSelection('guideShapes',`[data-shape="${state.guideShape}"]`);focus('guide');toast(state.guideShape==='slope'?'<span class="toast-emphasis">Slope guide</span> fitted — bevelled floor profile visible':'<span class="toast-emphasis">Straight guide</span> fitted — flat floor profile visible')});
-$('guideFinishes').addEventListener('click',e=>{let b=e.target.closest('[data-guide]');if(!b)return;state.guide=b.dataset.guide;updateUI();pulseSelection('guideFinishes',`[data-guide="${state.guide}"]`);focus('guide');toast(`<span class="toast-emphasis">${state.guide==='alu'?'Aluminium':state.guide[0].toUpperCase()+state.guide.slice(1)}</span> guide finish applied`)});
-$('extraChoices').addEventListener('click',e=>{let b=e.target.closest('[data-extra]');if(!b)return;state.extra=b.dataset.extra;updateUI();pulseSelection('extraChoices',`[data-extra="${state.extra}"]`);focus('seal');toast(state.extra==='none'?'Extra accessory removed':state.extra==='brush'?'<span class="toast-emphasis">Brush seal</span> added to closing edge':'<span class="toast-emphasis">Magnetic closure</span> added to meeting edge')});
+$('frameSwatches').addEventListener('click',e=>{let b=e.target.closest('[data-color]');if(!b)return;state.color=b.dataset.color;updateUI();focus('frame',true);toast(palette[state.color].name+' · '+palette[state.color].ral)});
+$('guideShapes').addEventListener('click',e=>{let b=e.target.closest('[data-shape]');if(!b)return;state.guideShape=b.dataset.shape;updateUI();pulseSelection('guideShapes',`[data-shape="${state.guideShape}"]`);focus('guide',true);toast(state.guideShape==='slope'?'<span class="toast-emphasis">Slope guide</span> fitted — bevelled floor profile visible':'<span class="toast-emphasis">Straight guide</span> fitted — flat floor profile visible')});
+$('guideFinishes').addEventListener('click',e=>{let b=e.target.closest('[data-guide]');if(!b)return;state.guide=b.dataset.guide;updateUI();pulseSelection('guideFinishes',`[data-guide="${state.guide}"]`);focus('guide',true);toast(`<span class="toast-emphasis">${state.guide==='alu'?'Aluminium':state.guide[0].toUpperCase()+state.guide.slice(1)}</span> guide finish applied`)});
+$('extraChoices').addEventListener('click',e=>{let b=e.target.closest('[data-extra]');if(!b)return;state.extra=b.dataset.extra;updateUI();pulseSelection('extraChoices',`[data-extra="${state.extra}"]`);focus('seal',true);toast(state.extra==='none'?'Extra accessory removed':state.extra==='brush'?'<span class="toast-emphasis">Brush seal</span> added to closing edge':'<span class="toast-emphasis">Magnetic closure</span> added to meeting edge')});
 $('stackChoices').addEventListener('click',e=>{let b=e.target.closest('[data-stack]');if(!b)return;state.stack=b.dataset.stack;updateUI();toast('Stacking side · '+state.stack)});
 $('unitSelect').addEventListener('change',e=>{state.unit=e.target.value;updateUI()});
 $('heightInput').addEventListener('change',e=>{let mm=Number(e.target.value)*scaleUnit[state.unit];if(!Number.isFinite(mm))return;state.heightMm=clamp(Math.round(mm),1200,3000);updateUI();toast('Height updated (demo)')});
@@ -387,7 +399,15 @@ $('openSlider').addEventListener('input',e=>{state.open=Number(e.target.value);u
 function switchScene(which){state.scene=which;document.querySelector('.stage').dataset.mode=which;state.zoom=1;state.yaw=-.05;state.pitch=0;state.exploded=false;anim.explode=0;$('toggleExplode').querySelector('span.word').textContent='Explode';$('explodePanel').textContent='◈  Show exploded view';document.querySelectorAll('[data-scene]').forEach(b=>{const yes=b.dataset.scene===which;b.classList.toggle('active',yes);b.setAttribute('aria-pressed',String(yes))});$('stageHint').textContent=which==='room'?'Drag across the mesh to open · Scroll to zoom room':'Drag to rotate · Pinch to zoom · Tap components';}
 document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>switchScene(b.dataset.scene)));
 function playAssembly(silent=false){if(state.scene==='room')switchScene('studio');assemblyStarted=performance.now();anim.assembly=0;state.open=0;updateUI();if(!silent)toast('Playing assembly · studio preview')}
-function explode(){if(state.scene==='room')switchScene('studio');state.exploded=!state.exploded;toast(state.exploded?'All frame, mesh and guide components separated':'Screen reassembled');$('toggleExplode').querySelector('span.word').textContent=state.exploded?'Reassemble':'Explode';$('explodePanel').textContent=state.exploded?'◈  Reassemble':'◈  Show exploded view'}
+function explode(){
+ if(state.scene==='room')switchScene('studio');
+ state.exploded=!state.exploded;
+ if(state.exploded){state.zoom=.80;state.pitch=.025;state.yaw=-.09;state.open=0;updateUI()}
+ else{state.zoom=1;activeHighlight='';inspector.classList.remove('show')}
+ toast(state.exploded?'All assemblies separated. Select a component to inspect it.':'Screen reassembled');
+ $('toggleExplode').querySelector('span.word').textContent=state.exploded?'Reassemble':'Explode';
+ $('explodePanel').textContent=state.exploded?'Reassemble':'Show exploded view';
+}
 function fit(){state.zoom=1;state.yaw=state.scene==='room'?(state.variant==='double'?-0.006:-0.02):-0.05;state.pitch=state.scene==='room'?-0.004:0;toast('View refitted to '+(state.scene==='room'?'the doorway':'the stage'))}
 $('playAssembly').onclick=playAssembly;$('assemblyPanel').onclick=playAssembly;
 $('toggleExplode').onclick=explode;$('explodePanel').onclick=explode;
@@ -397,7 +417,47 @@ $('resetCamera').onclick=fit;
 function playMotion(){motionCycle++;const myCycle=motionCycle;clearTimeout(motionTimer);state.open=92;updateUI();toast('Opening insect screen');motionTimer=setTimeout(()=>{if(motionCycle!==myCycle)return;state.open=state.variant==='double'?0:15;updateUI()},2300)}
 $('toggleMotion').onclick=playMotion;$('movementPanel').onclick=()=>{tabs('configure');playMotion()};
 const parts={frame:'Perimeter frame',mesh:'Pleated insect mesh',pull:'Moving pull bar',head:'Upper guide',guide:'Lower guide',seal:'Brush / magnet edge seal'};
-function focus(part){activeHighlight=part;highlightUntil=performance.now()+2600;if(state.scene==='room'){state.zoom=1.11}else{state.zoom=1.18;state.yaw=part==='pull'?.19:part==='guide'?.08:-.11;if(!state.exploded){state.exploded=true;$('toggleExplode').querySelector('span.word').textContent='Reassemble';$('explodePanel').textContent='◈  Reassemble';}}toast(parts[part]+' · component focus')}
+let inspectTimer=0;
+const inspector=$('partInspector');
+function inspectGraphic(part){
+ const f=palette[state.color].hex,g=guideFinishes[state.guide];
+ const top='<svg viewBox="0 0 100 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+ const end='</svg>';
+ if(part==='guide')return top+`<path d="M8 55 L92 55 L92 59 L8 59Z" fill="${g}"/><path d="${state.guideShape==='slope'?'M10 48L90 34L90 55L10 55Z':'M10 44L90 44L90 55L10 55Z'}" fill="${g}" stroke="#5c6460" stroke-width="1.4"/><path d="M12 47L90 ${state.guideShape==='slope'?35:45}" stroke="#ffffff" stroke-width="2" opacity=".55"/>`+end;
+ if(part==='seal'){
+  if(state.extra==='magnet')return top+`<rect x="22" y="8" width="20" height="56" rx="2" fill="${f}"/><rect x="58" y="8" width="20" height="56" rx="2" fill="${f}"/><rect x="42" y="13" width="5" height="46" fill="#ad8755"/><rect x="53" y="13" width="5" height="46" fill="#ad8755"/><path d="M47 36H53" stroke="#a57746" stroke-width="2"/>`+end;
+  if(state.extra==='brush')return top+`<rect x="22" y="7" width="18" height="58" fill="${f}"/><rect x="61" y="7" width="18" height="58" fill="${f}"/>${Array.from({length:13},(_,i)=>`<path d="M40 ${11+i*4}L58 ${12+i*4}" stroke="#675644" stroke-width="1.7"/>`).join('')}`+end;
+  return top+`<rect x="20" y="8" width="22" height="55" rx="2" fill="${f}"/><rect x="58" y="8" width="22" height="55" rx="2" fill="${f}"/>`+end;
+ }
+ if(part==='head')return top+`<path d="M9 28H91V45H9Z" fill="${f}"/><path d="M14 30H87" stroke="#e9ece9" stroke-width="2" opacity=".65"/><rect x="20" y="46" width="9" height="6" fill="#6d756f"/><rect x="72" y="46" width="9" height="6" fill="#6d756f"/>`+end;
+ if(part==='frame')return top+`<rect x="13" y="9" width="74" height="55" fill="none" stroke="${f}" stroke-width="9"/><path d="M16 11H84M16 62H84" stroke="#e6e2dc" stroke-width="2" opacity=".65"/>`+end;
+ if(part==='pull')return top+`<rect x="41" y="6" width="18" height="60" rx="2" fill="${f}"/><rect x="46" y="28" width="8" height="17" rx="2" fill="#d0cfc5"/><path d="M47 12V59" stroke="#f1ede6" stroke-width="1.3" opacity=".5"/>`+end;
+ return top+`<rect x="12" y="7" width="76" height="58" fill="#eff3f0"/>${Array.from({length:14},(_,i)=>`<path d="M${15+i*5} 8V64" stroke="${i%2?'#71827e':'#d4e1dd'}" stroke-width="1.6"/>`).join('')}<path d="M12 29H88M12 44H88" stroke="#84958f" stroke-width=".8"/>`+end;
+}
+function inspectPart(part,persistent=false){
+ clearTimeout(inspectTimer);
+ const headings={frame:'Frame profile',mesh:'Pleated screen',pull:'Operating bar',head:'Top guide',guide:state.guideShape==='slope'?'Sloped floor guide':'Straight floor guide',seal:state.extra==='magnet'?'Magnetic closure':state.extra==='brush'?'Brush seal':'Closing edge'};
+ const desc={frame:palette[state.color].name+' finish on the perimeter profiles.',mesh:'Both panels are separate retractable screen assemblies.',pull:'A moving vertical profile closes the screen.',head:'Upper track that carries and aligns the panels.',guide:(state.guide==='alu'?'Aluminium':state.guide)+' finish. '+(state.guideShape==='slope'?'Bevelled threshold profile.':'Flat threshold profile.'),seal:state.extra==='magnet'?'Paired magnetic strips meet at the closing edge.':state.extra==='brush'?'Flexible bristles seal the closing edge.':'No extra edge accessory is fitted.'};
+ inspector.querySelector('.part-inspector__art').innerHTML=inspectGraphic(part);
+ inspector.querySelector('.part-inspector__title').textContent=headings[part];
+ inspector.querySelector('.part-inspector__desc').textContent=desc[part];
+ inspector.classList.remove('show');void inspector.offsetWidth;inspector.classList.add('show');
+ if(!persistent)inspectTimer=setTimeout(()=>inspector.classList.remove('show'),5700);
+}
+
+function focus(part,fromOption=false){
+ activeHighlight=part;highlightUntil=performance.now()+(fromOption?5800:9500);
+ if(!fromOption){
+  if(state.scene==='room')switchScene('studio');
+  state.exploded=true;state.zoom=.84;state.yaw=-.10;state.pitch=.025;
+  $('toggleExplode').querySelector('span.word').textContent='Reassemble';$('explodePanel').textContent='Reassemble';
+ }else if(state.scene==='room'){
+  // Keep the screen installed in the photographed doorway while showing its detail.
+  state.zoom=1;
+ }
+ inspectPart(part,!fromOption);
+ if(!fromOption)toast(parts[part]+' selected for inspection');
+}
 $('componentItems').onclick=e=>{let b=e.target.closest('[data-part]');if(b)focus(b.dataset.part)};
 function object(){return {project:'S.A.C. Assembly Insect Door Studio',version:'1.8-demo',product:'IDD Insect Door',constructionAssumption:'Retractable pleated screen; illustrative, not confirmed against SAC engineering drawing',doorType:state.variant,unitType:state.unit,standardSingleWidthMm:state.widthBase,totalWidthMm:totalMm(),heightMm:Math.round(state.heightMm),frameColor:palette[state.color].name,frameRAL:palette[state.color].ral,guideType:(state.guideShape+' '+state.guide).toUpperCase(),extraItem:state.extra,stackSide:state.variant==='single'?state.stack:'both',previewOpenedPercent:Math.round(state.open),references:{reference1:$('ref1').value.trim(),reference2:$('ref2').value.trim(),reference3:$('ref3').value.trim()},disclaimer:'Visual demonstration. Dimensions and components must be validated against actual S.A.C. PCF/production rules. No quotation or order.'}}
 function details(){const x=object();return ['S.A.C. ASSEMBLY  /  IDD INSECT DOOR','',`Product: ${x.product}`,`Type: ${state.variant==='single'?'Single':'Double'} Door`,`Standard width: ${state.widthBase} mm / panel`,`Total width: ${x.totalWidthMm} mm`,`Height: ${x.heightMm} mm`,`Unit preference: ${x.unitType}`,`Frame: ${x.frameColor} (${x.frameRAL})`,`Guide: ${x.guideType}`,`Extra item: ${x.extraItem}`,`Stack side: ${x.stackSide}`,`Screen opening preview: ${x.previewOpenedPercent}%`,'',`Reference 1: ${x.references.reference1||'—'}`,`Reference 2: ${x.references.reference2||'—'}`,`Reference 3: ${x.references.reference3||'—'}`,'','Concept only; not an approved manufacturing specification.'].join('\n')}
@@ -434,7 +494,7 @@ function makeGeometry(){
   const total=totalMm(),ratio=total/state.heightMm;
   const maxW=cssW*(cssW<700?.60:.58),maxH=cssH*.72;
   const h=Math.min(maxH,maxW/ratio);const w=h*ratio;
-  const cx=cssW*(cssW<700?.69:.65),cy=cssH*.49;
+  const cx=cssW*(cssW<700?.50:.65),cy=cssH*.49;
   geom={x0:cx-w/2,x1:cx+w/2,y0:cy-h/2,y1:cy+h/2,w,h,kind:'model'};
  }
  geom.w=geom.x1-geom.x0;geom.h=geom.y1-geom.y0;
@@ -475,18 +535,28 @@ function profile(u0,v0,u1,v1,hex,z=0){
  rect(u0,v0,u1,v0+(v1-v0)*.19,shade(hex,1.20),z+.1);
  stroke([[u0,v1,z],[u1,v1,z]],shade(hex,.58),1.2);
 }
+const focusAreas=[];
 function componentMark(part,x0,y0,x1,y1){
  if(activeHighlight!==part||performance.now()>highlightUntil)return;
- const labels={frame:'FRAME',head:'HEADRAIL',guide:'LOWER GUIDE',mesh:'MESH',pull:'PULL BAR',seal:'EDGE DETAIL'};
- const pulse=.6+.4*Math.sin(performance.now()/170);
+ focusAreas.push({part,x0,y0,x1,y1});
+}
+function drawFocusAreas(){
+ if(!focusAreas.length)return;
+ const pulse=.78+.22*Math.sin(performance.now()/230);
  ctx.save();
- ctx.globalAlpha=.12+.08*pulse;ctx.fillStyle='#c09159';path([[x0,y0],[x1,y0],[x1,y1],[x0,y1]]);ctx.fill();
- ctx.globalAlpha=1;ctx.strokeStyle='#c09159';ctx.lineWidth=2.8;ctx.setLineDash([8,5]);path([[x0,y0],[x1,y0],[x1,y1],[x0,y1]]);ctx.stroke();ctx.setLineDash([]);
- const mid=[(x0+x1)/2,(y0+y1)/2],pt=pr(mid[0],mid[1],.45);
- ctx.beginPath();ctx.arc(pt[0],pt[1],16+4*pulse,0,Math.PI*2);ctx.strokeStyle='rgba(192,145,89,.92)';ctx.lineWidth=2;ctx.stroke();
- ctx.font='700 10px "Segoe UI",sans-serif';const label=labels[part]||'PART';const tw=ctx.measureText(label).width;
- ctx.fillStyle='#263645';ctx.beginPath();ctx.roundRect(pt[0]-tw/2-10,pt[1]-36,tw+20,22,7);ctx.fill();
- ctx.fillStyle='#fff';ctx.fillText(label,pt[0]-tw/2,pt[1]-21);
+ for(const r of focusAreas){
+  path([[r.x0,r.y0,.83],[r.x1,r.y0,.83],[r.x1,r.y1,.83],[r.x0,r.y1,.83]]);
+  ctx.fillStyle='rgba(226,167,94,.15)';ctx.fill();
+  ctx.strokeStyle='rgba(176,103,39,'+pulse+')';ctx.lineWidth=3.2;ctx.setLineDash([]);ctx.stroke();
+ }
+ const primary=focusAreas[0];
+ const location=pr((primary.x0+primary.x1)/2,primary.y0,.87);
+ const label=(parts[activeHighlight]||'Selected component').toUpperCase();
+ ctx.font='700 12px "Segoe UI",sans-serif';
+ const labelWidth=ctx.measureText(label).width+28;
+ const lx=clamp(location[0]-labelWidth/2,12,cssW-labelWidth-12),ly=clamp(location[1]-45,12,cssH-50);
+ ctx.fillStyle='#2d3735';ctx.beginPath();ctx.roundRect(lx,ly,labelWidth,32,9);ctx.fill();
+ ctx.fillStyle='#fffaf3';ctx.fillText(label,lx+14,ly+21);
  ctx.restore();
 }
 function meshSection(left,right,alpha,top=.047,bottom=.965,z=.2){
@@ -525,13 +595,14 @@ function edgeBar(u,opacity=1,dy=0){
 function drawScreen(){
  const iv=.040,mid=(state.variant==='double'&&state.scene==='room'?(1039/1586-.392)/(.934-.392):.50),ir=.962;
  const progress=clamp(anim.open/100,0,1),coverage=1-progress;
- const explodeShift=anim.explode*.038, meshDrop=anim.explode*.05, barDrop=anim.explode*.038;
+ const explodeShift=anim.explode*.125, meshDrop=anim.explode*.045, barDrop=anim.explode*.025;
  if(state.variant==='single'){
   const stowLeft=state.stack==='left';
-  const x1=stowLeft?iv+explodeShift*.25:ir-(ir-iv)*coverage-explodeShift*.35;
-  const x2=stowLeft?iv+(ir-iv)*coverage+explodeShift*.35:ir-explodeShift*.25;
+  const direction=stowLeft?1:-1;
+  const x1=stowLeft?iv+explodeShift*.65:ir-(ir-iv)*coverage-explodeShift*.65;
+  const x2=stowLeft?iv+(ir-iv)*coverage+explodeShift*.65:ir-explodeShift*.65;
   if(coverage>.04)meshSection(x1,x2,ease((anim.assembly-.24)/.43),.047+meshDrop,.965+meshDrop,.25+anim.explode*.1);
-  const b=(stowLeft?x2:x1)+(stowLeft?explodeShift:-explodeShift);
+  const b=(stowLeft?x2:x1)+direction*explodeShift*.3;
   const folded=stowLeft?[iv,iv+.034]:[ir-.034,ir];
   if(progress>.20)meshSection(folded[0],folded[1],.72,.047+meshDrop*.5,.965+meshDrop*.5,.21);
   edgeBar(b,ease((anim.assembly-.55)/.32),barDrop);
@@ -541,21 +612,22 @@ function drawScreen(){
   const seamHalfGap=state.scene==='room'?.0067:.007;
   const leftStop=mid-seamHalfGap,rightStop=mid+seamHalfGap;
   const leftActive=(leftStop-iv)*coverage,rightActive=(ir-rightStop)*coverage;
-  const leftMeshL=iv+explodeShift*.2,leftMeshR=iv+leftActive-explodeShift*.15;
-  const rightMeshL=ir-rightActive+explodeShift*.15,rightMeshR=ir-explodeShift*.2;
+  const leftMeshL=iv-explodeShift*.75,leftMeshR=iv+leftActive-explodeShift*.75;
+  const rightMeshL=ir-rightActive+explodeShift*.75,rightMeshR=ir+explodeShift*.75;
   if(coverage>.01){meshSection(leftMeshL,leftMeshR,ease((anim.assembly-.25)/.48),.047+meshDrop,.965+meshDrop,.25+anim.explode*.1);meshSection(rightMeshL,rightMeshR,ease((anim.assembly-.25)/.48),.047+meshDrop,.965+meshDrop,.25+anim.explode*.1)}
   if(progress>.2){meshSection(iv,iv+.018,.7,.047+meshDrop*.4,.965+meshDrop*.4,.21);meshSection(ir-.018,ir,.7,.047+meshDrop*.4,.965+meshDrop*.4,.21)}
-  const pullLeft=iv+leftActive-explodeShift,pullRight=ir-rightActive+explodeShift;
+  const pullLeft=iv+leftActive-explodeShift*1.05,pullRight=ir-rightActive+explodeShift*1.05;
   edgeBar(pullLeft,ease((anim.assembly-.55)/.32),barDrop);edgeBar(pullRight,ease((anim.assembly-.55)/.32),barDrop);
-  componentMark('mesh',leftMeshL,.05+meshDrop,rightMeshR,.96+meshDrop);componentMark('pull',pullLeft-.016,.045+barDrop,pullRight+.016,.973+barDrop);
-  componentMark('seal',mid-.025,.12+barDrop,mid+.025,.86+barDrop);
+  componentMark('mesh',leftMeshL,.05+meshDrop,leftMeshR,.96+meshDrop);componentMark('mesh',rightMeshL,.05+meshDrop,rightMeshR,.96+meshDrop);
+  componentMark('pull',pullLeft-.014,.045+barDrop,pullLeft+.014,.973+barDrop);componentMark('pull',pullRight-.014,.045+barDrop,pullRight+.014,.973+barDrop);
+  componentMark('seal',pullLeft-.019,.12+barDrop,pullLeft+.019,.86+barDrop);componentMark('seal',pullRight-.019,.12+barDrop,pullRight+.019,.86+barDrop);
  }
 }
 function drawOuter(){
  const h=palette[state.color].hex,guide=guideFinishes[state.guide];
  const headIn=ease(anim.assembly/.26), sideIn=ease((anim.assembly-.14)/.25), bottomIn=ease((anim.assembly-.32)/.24), trackIn=ease((anim.assembly-.18)/.22);
  const spread=anim.explode;
- const headLift=spread*.14, sideSpread=spread*.075, trackSpread=spread*.05, bottomDrop=spread*.10;
+ const headLift=spread*.16, sideSpread=spread*.105, trackSpread=spread*.058, bottomDrop=spread*.10;
  const headY=slideValue(-.14,.005-headLift,headIn), leftX=slideValue(-.12,.001-sideSpread,sideIn), rightX=slideValue(1.12,.971+sideSpread,sideIn), topGuideX0=slideValue(.08,-spread*.06,headIn), topGuideX1=slideValue(.92,1+spread*.06,headIn);
  // top headrail arrives first
  profile(topGuideX0,headY,topGuideX1,.038-headLift+(headY-(.005-headLift)),h,.20);
@@ -594,10 +666,14 @@ function drawSceneObject(){makeGeometry();ctx.save();if(state.scene==='room'){
  if(state.scene!=='room'){
   const g=pr(.5,1.02);ctx.save();ctx.translate(g[0],g[1]+8);ctx.scale(1,.23);ctx.fillStyle='#1e22252a';ctx.beginPath();ctx.ellipse(0,0,Math.max(geom.w*.58,80),40,0,0,Math.PI*2);ctx.fill();ctx.restore();
  }
+ focusAreas.length=0;
  drawOuter();
  if(anim.assembly>.05)drawScreen();
+ drawFocusAreas();
  if(state.exploded&&state.scene!=='room'){
-  const labels=[['HEAD',.5,-.08],['MESH',.53,.43],['PULL BAR',state.variant==='double'?.50:.88,.74],['LOWER GUIDE',.5,1.075]];
+  const labels=[['TOP TRACK',.5,-.18],['LEFT FRAME',-.11,.32],['RIGHT FRAME',1.11,.32],['MESH — LEFT',.27,.48],['PULL BARS',state.variant==='double'?.50:.88,.74],['FLOOR GUIDE',.50,1.095]];
+  if(state.variant==='double')labels.push(['MESH — RIGHT',.75,.48]);
+  if(state.extra!=='none')labels.push([state.extra==='magnet'?'MAGNET':'BRUSH',.5,.63]);
   labels.forEach(([label,u,v])=>{
    const pt=pr(u,v);ctx.font='600 10px "Segoe UI",sans-serif';const mw=ctx.measureText(label).width;
    ctx.fillStyle='#2c302fdd';ctx.beginPath();ctx.roundRect(pt[0]-mw/2-9,pt[1]-11,mw+18,22,6);ctx.fill();ctx.fillStyle='#fdfaf4';ctx.fillText(label,pt[0]-mw/2,pt[1]+4);
