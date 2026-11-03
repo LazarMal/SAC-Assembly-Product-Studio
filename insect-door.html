@@ -411,8 +411,8 @@ function explode(){
 function fit(){state.zoom=1;state.yaw=state.scene==='room'?(state.variant==='double'?-0.006:-0.02):-0.05;state.pitch=state.scene==='room'?-0.004:0;toast('View refitted to '+(state.scene==='room'?'the doorway':'the stage'))}
 $('playAssembly').onclick=playAssembly;$('assemblyPanel').onclick=playAssembly;
 $('toggleExplode').onclick=explode;$('explodePanel').onclick=explode;
-$('zoomIn').onclick=()=>state.zoom=clamp(state.zoom+.13,state.scene==='room'?.9:.65,state.scene==='room'?1.25:1.55);
-$('zoomOut').onclick=()=>state.zoom=clamp(state.zoom-.13,state.scene==='room'?.9:.65,state.scene==='room'?1.25:1.55);
+$('zoomIn').onclick=()=>state.zoom=clamp(state.zoom+.13,state.scene==='room'?1:.65,state.scene==='room'?1.25:1.55);
+$('zoomOut').onclick=()=>state.zoom=clamp(state.zoom-.13,state.scene==='room'?1:.65,state.scene==='room'?1.25:1.55);
 $('resetCamera').onclick=fit;
 function playMotion(){motionCycle++;const myCycle=motionCycle;clearTimeout(motionTimer);state.open=92;updateUI();toast('Opening insect screen');motionTimer=setTimeout(()=>{if(motionCycle!==myCycle)return;state.open=state.variant==='double'?0:15;updateUI()},2300)}
 $('toggleMotion').onclick=playMotion;$('movementPanel').onclick=()=>{tabs('configure');playMotion()};
@@ -660,7 +660,12 @@ function drawOuter(){
 }
 function drawSceneObject(){makeGeometry();ctx.save();if(state.scene==='room'){
   // IMPORTANT: zoom is applied to both room photo and overlay, never to the screen alone.
-  const px=cssW*.65,py=cssH*.48;ctx.translate(px,py);ctx.scale(anim.zoom,anim.zoom);ctx.translate(-px,-py);
+  const px=cssW*.65,py=cssH*.48;
+// Like Venetian mounted view, a zoom of 1 is the cover-fit baseline. Never
+// shrink the whole room image and expose canvas edges behind the product.
+// Photo, doorway and all screen hardware share the same camera transform.
+const roomZoom=Math.max(1,anim.zoom);
+ctx.translate(px,py);ctx.scale(roomZoom,roomZoom);ctx.translate(-px,-py);
  }
  background();
  if(state.scene!=='room'){
@@ -699,7 +704,7 @@ canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){activeTouc
 canvas.addEventListener('pointermove',e=>{
  if(e.pointerType==='touch'&&activeTouches.has(e.pointerId)){
   activeTouches.set(e.pointerId,[e.clientX,e.clientY]);
-  if(activeTouches.size>=2){const next=distanceOfTouches();if(pinchDistance>0&&next>0)state.zoom=clamp(state.zoom*(next/pinchDistance),state.scene==='room'?.9:.65,state.scene==='room'?1.25:1.55);pinchDistance=next;drag=false;wasDragged=true;return}
+  if(activeTouches.size>=2){const next=distanceOfTouches();if(pinchDistance>0&&next>0)state.zoom=clamp(state.zoom*(next/pinchDistance),state.scene==='room'?1:.65,state.scene==='room'?1.25:1.55);pinchDistance=next;drag=false;wasDragged=true;return}
   if(pinchUsed)return;
  }
  if(!drag)return;
@@ -712,12 +717,12 @@ canvas.addEventListener('pointermove',e=>{
  }
 });
 canvas.addEventListener('pointerup',e=>{if(e.pointerType==='touch'){activeTouches.delete(e.pointerId);const wasPinch=pinchUsed;if(activeTouches.size<2)pinchDistance=0;if(activeTouches.size===0)pinchUsed=false;if(wasPinch){drag=false;wasDragged=true;return}}drag=false;if(wasDragged)return;const r=canvas.getBoundingClientRect();let x=e.clientX-r.left,y=e.clientY-r.top;
- if(state.scene==='room'){const px=cssW*.65,py=cssH*.48;x=px+(x-px)/anim.zoom;y=py+(y-py)/anim.zoom}
+ if(state.scene==='room'){const px=cssW*.65,py=cssH*.48,roomZoom=Math.max(1,anim.zoom);x=px+(x-px)/roomZoom;y=py+(y-py)/roomZoom}
  if(!insideModel(x,y))return;
  const u=(x-geom.x0)/geom.w,v=(y-geom.y0)/geom.h;
  focus(v<.085?'head':v>.92?'guide':u<.035||u>.965?'frame':Math.abs(u-.50)<.06?'pull':'mesh')});
 canvas.addEventListener('pointercancel',e=>{activeTouches.delete(e.pointerId);if(activeTouches.size===0){pinchDistance=0;pinchUsed=false}drag=false});
-canvas.addEventListener('wheel',e=>{e.preventDefault();state.zoom=clamp(state.zoom-e.deltaY*.00075,state.scene==='room'?.9:.65,state.scene==='room'?1.25:1.55)},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();state.zoom=clamp(state.zoom-e.deltaY*.00075,state.scene==='room'?1:.65,state.scene==='room'?1.25:1.55)},{passive:false});
 window.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){state.open=clamp(state.open+(e.key==='ArrowLeft'?-5:5),0,100);updateUI()}});
 updateUI();
 switchScene('studio');
