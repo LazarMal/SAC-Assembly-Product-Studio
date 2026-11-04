@@ -1,0 +1,8 @@
+# Isolated IDD 3D showroom preview on Netlify.
+# Only the feature branch uses this configuration; GitHub Pages production is untouched.
+[build]
+  command = "npm ci --prefix apps/studio --no-audit --no-fund && npm run typecheck --prefix apps/studio && npm test --prefix apps/studio && npm run build --prefix apps/studio -- --base=/ && node apps/studio/scripts/prepare-legacy-viewers.mjs . apps/studio/dist"
+  publish = "apps/studio/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
