@@ -85,3 +85,5 @@
 .story-hint{position:absolute;right:clamp(20px,4vw,62px);bottom:24px;z-index:4;font-size:13px;font-weight:600;color:#fff6e9;text-shadow:0 2px 12px #241b1590;pointer-events:none}
 @media(max-width:760px){.light-story .hero-image{background-position:60% 50%}.light-story .story-panel{min-height:560px}.story-hint{right:20px;bottom:16px}}
 @media(prefers-reduced-motion:reduce){.light-story{height:100svh}.story-hint{display:none}}
+
+.product-beta-link{margin-bottom:14px}.product-beta-link .concept-caption{margin:8px 0 0}
