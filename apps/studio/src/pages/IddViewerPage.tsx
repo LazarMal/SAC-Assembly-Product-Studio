@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { DoorConfiguration, DoorViewer, CameraPreset, LightingMode } from '../features/viewer3d/createDoorViewer';
 import { RAL_HEX } from '../products/shared/ralColors';
+import { readIddSelection, writeIddSelection, toDoorConfiguration } from '../features/configurator/iddSharedSelection';
 
 const initial: DoorConfiguration = {
   variant: 'single', width: 960, height: 2100, frameColor: 'RAL7016',
@@ -23,15 +24,22 @@ const views: { id: CameraPreset; label: string }[] = [
 export default function IddViewerPage() {
   const canvasHost = useRef<HTMLDivElement>(null);
   const renderer = useRef<DoorViewer | null>(null);
-  const [configuration, setConfiguration] = useState<DoorConfiguration>(initial);
-  const [opened, setOpened] = useState(35);
+  const [loadedSelection] = useState(() => readIddSelection());
+  const [configuration, setConfiguration] = useState<DoorConfiguration>(() =>
+    loadedSelection ? toDoorConfiguration(loadedSelection) : initial
+  );
+  const [opened, setOpened] = useState(() => loadedSelection?.openPercent ?? 35);
   const [exploded, setExploded] = useState(false);
   const [preset, setPreset] = useState<CameraPreset>('angle');
   const [lightingMode, setLightingMode] = useState<LightingMode>('studio');
   const [expanded, setExpanded] = useState(false);
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
-  const setVariant = (variant: 'single' | 'double') => setConfiguration(s => ({ ...s, variant }));
+  // The configurator specifies panel width; the 3D engine uses total width.
+  const setVariant = (variant: 'single' | 'double') =>
+    setConfiguration(s => s.variant === variant ? s : ({
+      ...s, variant, width: s.width * (variant === 'double' ? 2 : .5)
+    }));
   const setFrameColor = (frameColor: string) => setConfiguration(s => ({ ...s, frameColor }));
 
   useEffect(() => {
@@ -41,9 +49,9 @@ export default function IddViewerPage() {
     import('../features/viewer3d/createDoorViewer').then(({ createDoorViewer }) => {
       if (!active) return;
       try {
-        const model = createDoorViewer(host, initial);
+        const model = createDoorViewer(host, configuration);
         renderer.current = model;
-        model.setOpen(.35);
+        model.setOpen(opened / 100);
         model.setCameraPreset('angle');
         model.setLightingMode('studio');
         setReady(true);
@@ -65,6 +73,18 @@ export default function IddViewerPage() {
   useEffect(() => { renderer.current?.setExploded(exploded); }, [exploded, ready]);
   useEffect(() => { renderer.current?.setCameraPreset(preset); }, [preset, ready]);
   useEffect(() => { renderer.current?.setLightingMode(lightingMode); }, [lightingMode, ready]);
+
+  // Shared state is display-only. The technical configurator remains authoritative
+  // for option choices; keep its references and unit preference when returning.
+  useEffect(() => {
+    const previous = readIddSelection() ?? loadedSelection;
+    writeIddSelection({
+      productId: 'idd', schemaVersion: 1,
+      ...configuration, openPercent: opened,
+      unit: previous?.unit ?? 'mm',
+      references: previous?.references ?? { reference1: '', reference2: '', reference3: '' }
+    });
+  }, [configuration, opened, loadedSelection]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -89,9 +109,9 @@ export default function IddViewerPage() {
       <div>
         <Link className="back-link" to="/products/idd-insect-doors">← Insect doors · IDD</Link>
         <h1>See the whole system.</h1>
-        <p>Take a closer look at the frame, pleated screen and sliding mechanism. For all product options, use the detailed configurator.</p>
+        <p>Explore your selected frame, pleated screen and sliding mechanism. Changes here carry back to your IDD configuration.</p>
       </div>
-      <a href={originalUrl} className="showroom-configure-link">Configure IDD <span aria-hidden="true">↗</span></a>
+      <a href={originalUrl} className="showroom-configure-link">Back to configurator <span aria-hidden="true">↗</span></a>
     </div>
 
     <section className={'showroom-stage' + (expanded ? ' is-expanded' : '')}
@@ -171,7 +191,7 @@ export default function IddViewerPage() {
         <h2 id="showroom-next">Ready to personalize it?</h2>
         <p>This 3D experience is for viewing the product and seeing its motion. Dimensions, guides, extras and technical choices live in the detailed configurator, where they are easier to understand.</p>
       </div>
-      <a href={originalUrl} className="button button-dark">Open IDD configurator <span aria-hidden="true">↗</span></a>
+      <a href={originalUrl} className="button button-dark">Return to your configuration <span aria-hidden="true">↗</span></a>
     </section>
   </main>;
 }
