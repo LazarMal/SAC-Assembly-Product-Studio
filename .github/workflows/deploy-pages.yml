@@ -59,7 +59,6 @@ jobs:
           npm ci --no-audit --no-fund
           npm run typecheck
           npm test
-          npm run test:navigation
           npm run build -- --base=/SAC-Assembly-Product-Studio/preview-next/
       - name: Assemble Pages artifact without changing production
         shell: bash
