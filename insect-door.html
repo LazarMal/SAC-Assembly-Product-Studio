@@ -242,14 +242,24 @@ html body .stage-actions .sym,html body .scene-actions .mode-symbol{display:none
 @keyframes inspectorReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:730px){.part-inspector{padding:12px;margin:0 0 12px;gap:12px}.part-inspector__art{flex-basis:78px;width:78px;height:62px}.part-inspector__art svg{width:78px;height:62px}.part-inspector__title{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.part-inspector{animation:none}}
-</style><style id="sac-mobile-controls">@media(max-width:730px){.scene-actions .word{display:inline!important}.scene-actions{gap:2px!important;max-width:calc(100vw - 16px)!important}.scene-actions button{padding:8px 7px!important;font-size:10px!important}.panel-scroll{scroll-padding-top:16px}}</style></head>
+</style><style id="sac-three-product-header">
+@media(max-width:730px){
+ html body .shared-header{height:102px!important;min-height:102px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding:9px 12px 8px!important}
+ html body .shared-brand{flex:0 0 32px!important;min-height:32px!important;margin:0!important;align-self:flex-start!important}
+ html body .shared-links{position:static!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;min-width:0!important;width:100%!important;height:40px!important;max-height:40px!important;flex:0 0 40px!important;gap:4px!important;display:flex!important;justify-content:space-between!important;align-items:center!important;overflow-x:auto!important;overscroll-behavior-x:contain!important;scrollbar-width:none!important}
+ html body .shared-links::-webkit-scrollbar{display:none!important}
+ html body .shared-links .shared-index{display:none!important}
+ html body .shared-links a{height:38px!important;min-height:38px!important;max-height:38px!important;min-width:0!important;flex:1 1 0!important;display:inline-flex!important;justify-content:center!important;padding:8px 7px!important;font-size:11px!important;line-height:1.1!important}
+}
+@media(max-width:350px){html body .shared-links a{font-size:10px!important;padding:7px 5px!important}}
+</style></head>
 <body data-s-a-c-product="idd">
 <div class="app-shell">
 <header aria-label="Main navigation" class="shared-header">
 <a aria-label="S.A.C. Assembly — Home" class="shared-brand" href="./index.html"><span class="shared-wordmark"><b>S.A.C.</b> Assembly</span></a>
 
 
-<nav aria-label="Products" class="shared-links"><a class="shared-index" href="./index.html">Collection</a><a data-product-link="venetian" href="./venetian.html">Venetian blinds</a><a class="current" data-product-link="idd" href="./insect-door.html">Insect doors</a></nav>
+<nav aria-label="Products" class="shared-links"><a class="shared-index" href="./index.html">Collection</a><a data-product-link="venetian" href="./venetian.html">Venetian blinds</a><a class="current" data-product-link="idd" href="./insect-door.html">IDD doors</a><a data-product-link="odd" href="./odd-door.html">ODD doors</a></nav>
 
 </header>
 <main class="workspace">
@@ -494,7 +504,7 @@ function makeGeometry(){
   const total=totalMm(),ratio=total/state.heightMm;
   const maxW=cssW*(cssW<700?.60:.58),maxH=cssH*.72;
   const h=Math.min(maxH,maxW/ratio);const w=h*ratio;
-  const cx=cssW*(cssW<700?.50:.65),cy=cssH*.49;
+  const cx=cssW*(cssW<700?.69:.65),cy=cssH*.49;
   geom={x0:cx-w/2,x1:cx+w/2,y0:cy-h/2,y1:cy+h/2,w,h,kind:'model'};
  }
  geom.w=geom.x1-geom.x0;geom.h=geom.y1-geom.y0;
@@ -661,11 +671,11 @@ function drawOuter(){
 function drawSceneObject(){makeGeometry();ctx.save();if(state.scene==='room'){
   // IMPORTANT: zoom is applied to both room photo and overlay, never to the screen alone.
   const px=cssW*.65,py=cssH*.48;
-// Like Venetian mounted view, a zoom of 1 is the cover-fit baseline. Never
-// shrink the whole room image and expose canvas edges behind the product.
-// Photo, doorway and all screen hardware share the same camera transform.
-const roomZoom=Math.max(1,anim.zoom);
-ctx.translate(px,py);ctx.scale(roomZoom,roomZoom);ctx.translate(-px,-py);
+  // Match Venetian Living Room behavior: the fitted photo is the 1× minimum.
+  // Scaling below 1 would expose empty canvas around the mounted doorway.
+  // Use the same transform for photo, frame, mesh, and attachments.
+  const roomZoom=Math.max(1,anim.zoom);
+  ctx.translate(px,py);ctx.scale(roomZoom,roomZoom);ctx.translate(-px,-py);
  }
  background();
  if(state.scene!=='room'){
