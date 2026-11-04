@@ -145,12 +145,13 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   function setCameraPreset(preset: CameraPreset){
     currentCamera = preset;
     const distance = Math.max(3.9, width*2.1, height*2.25);
-    const direction = {
+    const directions: Record<CameraPreset, [number, number, number]> = {
       front: [0, .10, 1],
       angle: [.52, .20, 1],
       side: [1, .09, .015],
       back: [0, .10, -1]
-    }[preset];
+    };
+    const direction = directions[preset];
     const basis = new THREE.Vector3(...direction).normalize();
     desiredTarget = new THREE.Vector3(0, height * .51, 0);
     desiredCamera = desiredTarget.clone().addScaledVector(basis, distance);
