@@ -1,112 +1,162 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { definition } from '../products/idd/definition';
-import { validateSelection } from '../features/configurator/validate';
-import type { DoorConfiguration, DoorPart, DoorViewer } from '../features/viewer3d/createDoorViewer';
+import type { DoorConfiguration, DoorViewer, CameraPreset } from '../features/viewer3d/createDoorViewer';
+import { RAL_HEX } from '../products/shared/ralColors';
 
-const defaults:DoorConfiguration = {
-  variant:'single',width:960,height:2100,frameColor:'RAL7016',guideShape:'straight',
-  guideFinish:'aluminium',extra:'none',stackSide:'left'
+const initial: DoorConfiguration = {
+  variant: 'single', width: 960, height: 2100, frameColor: 'RAL7016',
+  guideShape: 'straight', guideFinish: 'aluminium', extra: 'none', stackSide: 'left'
 };
-const ralColors:Record<string,string> = {
-  RAL7013:'#57564c', RAL7016:'#383f43',RAL7039:'#646158',
-  RAL9001:'#e6e1cf',RAL9005:'#161b1c',RAL9010:'#f0efe8',RAL9016:'#f4f6f3'
-};
-function Choice<T extends string>({title,value,choices,onChange}:{title:string,value:T,choices:readonly {value:T,label:string}[],onChange:(v:T)=>void}) {
-  return <fieldset className="viewer-choice"><legend>{title}</legend><div className="viewer-choice-options">
-    {choices.map(c=><button type="button" key={c.value} aria-pressed={value===c.value}
-      className={'viewer-option'+(value===c.value?' is-selected':'')} onClick={()=>onChange(c.value)}>{c.label}</button>)}
-  </div></fieldset>;
-}
-export default function IddViewerPage(){
-  const canvasHost=useRef<HTMLDivElement>(null);
-  const viewer=useRef<DoorViewer|null>(null);
-  const [cfg,setCfg]=useState<DoorConfiguration>(defaults);
-  const [open,setOpen]=useState(32);
-  const [exploded,setExploded]=useState(false);
-  const [part,setPart]=useState<DoorPart|null>(null);
-  const [failure,setFailure]=useState<string|null>(null);
-  const [initialized,setInitialized]=useState(false);
-  const update=(patch:Partial<DoorConfiguration>)=>setCfg(prev=>({...prev,...patch}));
-  const result=validateSelection(definition,{...definition.defaultSelection,...cfg});
-  useEffect(()=>{
-    let active=true;
-    if(!canvasHost.current)return;
-    import('../features/viewer3d/createDoorViewer').then(({createDoorViewer})=>{
-      if(!active||!canvasHost.current)return;
-      try{
-        const scene=createDoorViewer(canvasHost.current,cfg);
-        viewer.current=scene;
-        scene.setOpen(open/100);
-        scene.setExploded(exploded);
-        scene.focus(part);
-        setInitialized(true);
-      }catch(e){setFailure(e instanceof Error?e.message:'This browser cannot start WebGL.');}
-    }).catch(()=>setFailure('The 3D engine could not be loaded.'));
-    return()=>{active=false;viewer.current?.dispose();viewer.current=null;};
-  // Initialize the GPU context once. React state is applied through separate effects.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);
-  useEffect(()=>{if(initialized&&result.ok)viewer.current?.configure(cfg);},[cfg,initialized,result.ok]);
-  useEffect(()=>{viewer.current?.setOpen(open/100);},[open,initialized]);
-  useEffect(()=>{viewer.current?.setExploded(exploded);},[exploded,initialized]);
-  useEffect(()=>{viewer.current?.focus(part);},[part,initialized]);
-  return <main id="main-content" className="viewer-page container">
-    <div className="viewer-heading"><div>
-      <Link className="back-link" to="/products/idd-insect-doors">← Insect doors · IDD</Link>
-      <h1>Explore IDD in 3D.</h1>
-      <p>Orbit the assembly, explore finishes and slide the pleated mesh. Early geometry study — not a manufacturing drawing.</p>
-    </div><span className="viewer-phase">3D Concept Studio</span></div>
-    <div className="viewer-workspace">
-      <section className="viewer-scene" aria-label="Interactive three dimensional IDD screen door">
-        <div ref={canvasHost} className="viewer-canvas" />
-        {failure&&<div className="viewer-failure" role="alert"><p>3D view unavailable: {failure}</p><p>The original interactive IDD demonstration is still available below.</p></div>}
-        {!initialized&&!failure&&<div className="viewer-loading" role="status">Preparing 3D scene…</div>}
-        <div className="viewer-scene-caption">Drag to rotate · Scroll to zoom · Pinch on mobile</div>
-        <div className="viewer-scene-actions">
-          <button type="button" onClick={()=>viewer.current?.resetCamera()}>Fit view</button>
-          <button type="button" aria-pressed={exploded} onClick={()=>setExploded(v=>!v)}>{exploded?'Assemble':'Exploded view'}</button>
-        </div>
-      </section>
-      <aside className="viewer-controls" aria-label="IDD product options">
-        <h2>Make it yours.</h2>
-        <Choice title="Door configuration" value={cfg.variant}
-          choices={[{value:'single',label:'Single'},{value:'double',label:'Double'}]}
-          onChange={variant=>update({variant})}/>
-        <div className="viewer-measurements">
-          <label>Width · mm<input type="number" min="500" max="4500" step="10" value={cfg.width} onChange={e=>update({width:e.target.valueAsNumber})}/></label>
-          <label>Height · mm<input type="number" min="1100" max="3700" step="10" value={cfg.height} onChange={e=>update({height:e.target.valueAsNumber})}/></label>
-        </div>
-        <fieldset className="viewer-choice"><legend>Frame finish</legend><div className="viewer-ral">
-          {Object.entries(ralColors).map(([name,color])=><button key={name} type="button"
-            className={cfg.frameColor===name?'is-selected':''} title={name} aria-label={name} aria-pressed={cfg.frameColor===name}
-            onClick={()=>update({frameColor:name})}><span style={{backgroundColor:color}}/></button>)}
-        </div><p className="viewer-selected-ral">{cfg.frameColor} <span>· indicative screen color</span></p></fieldset>
-        <Choice title="Guide profile" value={cfg.guideShape}
-          choices={[{value:'straight',label:'Straight'},{value:'slope',label:'Slope'}]}
-          onChange={guideShape=>update({guideShape})}/>
-        <Choice title="Guide finish" value={cfg.guideFinish}
-          choices={[{value:'grey',label:'Grey'},{value:'aluminium',label:'Aluminium'},{value:'black',label:'Black'}]}
-          onChange={guideFinish=>update({guideFinish})}/>
-        <Choice title="Edge option" value={cfg.extra}
-          choices={[{value:'none',label:'None'},{value:'brush',label:'Brush'},{value:'magnet',label:'Magnet'}]}
-          onChange={extra=>update({extra})}/>
-        {cfg.variant==='single'&&<Choice title="Stack side" value={cfg.stackSide}
-          choices={[{value:'left',label:'Left'},{value:'right',label:'Right'}]}
-          onChange={stackSide=>update({stackSide})}/>}
-        <div className="viewer-motion"><label htmlFor="door-open">Open the screen <strong>{open}%</strong></label>
-          <input id="door-open" type="range" min="0" max="100" value={open} onChange={e=>setOpen(Number(e.target.value))}/></div>
-        <fieldset className="viewer-choice"><legend>Inspect a component</legend><div className="viewer-choice-options">
-          {(['frame','mesh','pull','guide'] as const).map(id=><button type="button" key={id} aria-pressed={part===id}
-          className={'viewer-option'+(part===id?' is-selected':'')} onClick={()=>setPart(current=>current===id?null:id)}>{id==='pull'?'Pull bar':id.charAt(0).toUpperCase()+id.slice(1)}</button>)}
-        </div></fieldset>
-        {!result.ok&&<div className="viewer-validation" role="alert">{result.issues.join('. ')}</div>}
-        <div className="viewer-disclaimer">Illustrative 3D geometry. Dimensions are preview inputs only; production limits, profiles and RAL matches require approved technical data.</div>
-      </aside>
+
+const views: { id: CameraPreset; label: string }[] = [
+  { id: 'front', label: 'Front' },
+  { id: 'angle', label: '3/4 view' },
+  { id: 'side', label: 'Side' },
+  { id: 'back', label: 'Back' }
+];
+
+/**
+ * Product showroom — not a second configurator.
+ * A small set of visually legible demonstration controls only; verified
+ * production dimensions and detailed PCF choices belong in Configure.
+ */
+export default function IddViewerPage() {
+  const canvasHost = useRef<HTMLDivElement>(null);
+  const renderer = useRef<DoorViewer | null>(null);
+  const [configuration, setConfiguration] = useState<DoorConfiguration>(initial);
+  const [opened, setOpened] = useState(35);
+  const [exploded, setExploded] = useState(false);
+  const [preset, setPreset] = useState<CameraPreset>('angle');
+  const [expanded, setExpanded] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  const setVariant = (variant: 'single' | 'double') => setConfiguration(s => ({ ...s, variant }));
+  const setFrameColor = (frameColor: string) => setConfiguration(s => ({ ...s, frameColor }));
+
+  useEffect(() => {
+    let active = true;
+    const host = canvasHost.current;
+    if (!host) return;
+    import('../features/viewer3d/createDoorViewer').then(({ createDoorViewer }) => {
+      if (!active) return;
+      try {
+        const model = createDoorViewer(host, initial);
+        renderer.current = model;
+        model.setOpen(.35);
+        model.setCameraPreset('angle');
+        setReady(true);
+      } catch (error) {
+        setFailure(error instanceof Error ? error.message : '3D rendering is unavailable in this browser.');
+      }
+    }).catch(() => {
+      if (active) setFailure('Unable to load the WebGL engine.');
+    });
+    return () => {
+      active = false;
+      renderer.current?.dispose();
+      renderer.current = null;
+    };
+  }, []);
+
+  useEffect(() => { if (ready) renderer.current?.configure(configuration); }, [configuration, ready]);
+  useEffect(() => { renderer.current?.setOpen(opened / 100); }, [opened, ready]);
+  useEffect(() => { renderer.current?.setExploded(exploded); }, [exploded, ready]);
+  useEffect(() => { renderer.current?.setCameraPreset(preset); }, [preset, ready]);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpanded(false);
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => {
+      document.body.style.overflow = oldOverflow;
+      window.removeEventListener('keydown', onEscape);
+    };
+  }, [expanded]);
+
+  const originalUrl = import.meta.env.DEV
+    ? '/insect-door.html'
+    : import.meta.env.BASE_URL + 'viewers/insect-door.html';
+
+  return <main id="main-content" className="showroom-page">
+    <div className="showroom-intro container">
+      <div>
+        <Link className="back-link" to="/products/idd-insect-doors">← Insect doors · IDD</Link>
+        <h1>See the whole system.</h1>
+        <p>Take a closer look at the frame, pleated screen and sliding mechanism. For all product options, use the detailed configurator.</p>
+      </div>
+      <a href={originalUrl} className="showroom-configure-link">Configure IDD <span aria-hidden="true">↗</span></a>
     </div>
-    <div className="viewer-legacy"><h2>Existing detailed configurator</h2>
-      <p>The original IDD experience remains available with its complete component inspector, room view and animation controls while we migrate each feature.</p>
-      <a className="button button-dark" href={import.meta.env.DEV?'/insect-door.html':import.meta.env.BASE_URL+'viewers/insect-door.html'}>Open detailed IDD configurator <span aria-hidden="true">↗</span></a>
-    </div>
+
+    <section className={'showroom-stage' + (expanded ? ' is-expanded' : '')}
+      aria-label="Interactive 3D presentation of the IDD insect door">
+      <div ref={canvasHost} className="showroom-canvas" />
+      {!ready && !failure && <div className="showroom-status" role="status">Loading the 3D product…</div>}
+      {failure && <div className="showroom-status" role="alert">The 3D presentation isn't available: {failure}
+        <a href={originalUrl}>Open the detailed configurator</a>
+      </div>}
+
+      <div className="showroom-topbar">
+        <div className="showroom-product-tag">
+          <strong>IDD / Pleated insect door</strong>
+          <span>3D product showcase · conceptual model</span>
+        </div>
+        <button className="showroom-icon-button" type="button"
+          onClick={() => setExpanded(x => !x)}
+          aria-label={expanded ? 'Exit immersive view' : 'Expand to immersive view'}>
+          {expanded ? 'Close full view' : 'Full view'} <span aria-hidden="true">{expanded ? '↙' : '↗'}</span>
+        </button>
+      </div>
+
+      <div className="showroom-view-options" role="group" aria-label="Camera views">
+        {views.map(view => <button key={view.id} type="button"
+          aria-pressed={preset === view.id}
+          onClick={() => { setPreset(view.id); renderer.current?.setCameraPreset(view.id); }}>
+          {view.label}
+        </button>)}
+        <button type="button" onClick={() => { setPreset('angle'); renderer.current?.resetCamera(); }}>Reset</button>
+      </div>
+
+      <div className="showroom-bottom">
+        <div className="showroom-selections">
+          <div className="showroom-option-set" role="group" aria-label="Door presentation">
+            <span className="showroom-option-title">System</span>
+            <button type="button" aria-pressed={configuration.variant === 'single'} onClick={() => setVariant('single')}>Single</button>
+            <button type="button" aria-pressed={configuration.variant === 'double'} onClick={() => setVariant('double')}>Double</button>
+          </div>
+          <div className="showroom-color-group" role="group" aria-label="Preview frame finish">
+            <span className="showroom-option-title">Frame preview</span>
+            {Object.entries(RAL_HEX).map(([name,color]) =>
+              <button type="button" key={name} aria-label={'Frame color ' + name}
+                aria-pressed={configuration.frameColor === name}
+                title={name} onClick={() => setFrameColor(name)}>
+                <span style={{backgroundColor:color}} />
+              </button>)}
+          </div>
+          <div className="showroom-motion" >
+            <label htmlFor="showroom-opening">Slide mesh <strong>{opened}%</strong></label>
+            <input id="showroom-opening" type="range" min="0" max="100"
+              value={opened} onChange={e => setOpened(Number(e.target.value))}/>
+          </div>
+          <button type="button" className="showroom-explode" aria-pressed={exploded}
+            onClick={() => setExploded(x => !x)}>{exploded ? 'Reassemble' : 'Exploded view'}</button>
+        </div>
+        <div className="showroom-bottom-foot">
+          <span>Drag to rotate · Scroll or pinch to zoom</span>
+          <span>Illustrative geometry · not an approved technical model</span>
+        </div>
+      </div>
+    </section>
+    <section className="showroom-after container" aria-labelledby="showroom-next">
+      <div>
+        <span className="showroom-eyebrow">Next step</span>
+        <h2 id="showroom-next">Ready to personalize it?</h2>
+        <p>This 3D experience is for viewing the product and seeing its motion. Dimensions, guides, extras and technical choices live in the detailed configurator, where they are easier to understand.</p>
+      </div>
+      <a href={originalUrl} className="button button-dark">Open IDD configurator <span aria-hidden="true">↗</span></a>
+    </section>
   </main>;
 }
