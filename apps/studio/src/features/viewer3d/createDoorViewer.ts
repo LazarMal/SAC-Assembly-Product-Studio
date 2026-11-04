@@ -16,12 +16,14 @@ export type DoorConfiguration = {
   stackSide: 'left' | 'right';
 };
 export type DoorPart = 'frame' | 'mesh' | 'pull' | 'guide';
+export type CameraPreset = 'front' | 'angle' | 'side' | 'back';
 export interface DoorViewer {
   configure(config: DoorConfiguration): void;
   setOpen(value: number): void;
   setExploded(value: boolean): void;
   focus(part: DoorPart | null): void;
   resetCamera(): void;
+  setCameraPreset(preset: CameraPreset): void;
   dispose(): void;
 }
 type Leaf = { folds: THREE.Mesh[]; pull: THREE.Mesh; fromLeft: boolean };
@@ -64,8 +66,14 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   let originalMaterials=new Map<THREE.Mesh,THREE.MeshStandardMaterial>();
   let disposed=false,visible=true,frameId=0;
   const thumb=new THREE.Vector3();
+  let desiredCamera: THREE.Vector3 | null = null;
+  let desiredTarget: THREE.Vector3 | null = null;
+  let currentCamera: CameraPreset = 'angle';
+  orbit.addEventListener('start', () => { desiredCamera = null; desiredTarget = null; });
   function clearProduct(){
-    product.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.geometry.dispose();const mats=Array.isArray(obj.material)?obj.material:[obj.material];mats.forEach(m=>m.dispose())}});
+    const usedMaterials = new Set<THREE.Material>();
+    product.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.geometry.dispose();const mats=Array.isArray(obj.material)?obj.material:[obj.material];mats.forEach(m=>usedMaterials.add(m))}});
+    usedMaterials.forEach(material => material.dispose());
     product.clear();parts={frame:[],mesh:[],pull:[],guide:[]};frameSegments=[];leaves=[];originalMaterials.clear();
   }
   function register(mesh:THREE.Mesh,type:DoorPart){
@@ -125,7 +133,6 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
       edge.position.set(config.variant==='double'?0:(config.stackSide==='right'?-width/2:width/2),height/2,.055);
     }
     applyPartFocus();
-    resetCamera();
   }
   function applyPartFocus(){
     for(const [type,meshes] of Object.entries(parts) as [DoorPart,THREE.Mesh[]][]){
@@ -135,11 +142,21 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
       }
     }
   }
+  function setCameraPreset(preset: CameraPreset){
+    currentCamera = preset;
+    const distance = Math.max(3.9, width*2.1, height*2.25);
+    const direction = {
+      front: [0, .10, 1],
+      angle: [.52, .20, 1],
+      side: [1, .09, .015],
+      back: [0, .10, -1]
+    }[preset];
+    const basis = new THREE.Vector3(...direction).normalize();
+    desiredTarget = new THREE.Vector3(0, height * .51, 0);
+    desiredCamera = desiredTarget.clone().addScaledVector(basis, distance);
+  }
   function resetCamera(){
-    orbit.target.set(0,height*.51,0);
-    const distance=Math.max(3.7,width*2.0,height*2.1);
-    camera.position.set(distance*.55,height*.72,distance);
-    camera.lookAt(orbit.target);orbit.update();
+    setCameraPreset('angle');
   }
   function animate(){
     if(disposed)return;
@@ -171,13 +188,29 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
         0
       )));
     }
+    if (desiredCamera && desiredTarget) {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const step = reduced ? 1 : .095;
+      camera.position.lerp(desiredCamera, step);
+      orbit.target.lerp(desiredTarget, step);
+      if (camera.position.distanceToSquared(desiredCamera) < .000008 && orbit.target.distanceToSquared(desiredTarget) < .000008) {
+        camera.position.copy(desiredCamera);
+        orbit.target.copy(desiredTarget);
+        desiredCamera = null;
+        desiredTarget = null;
+      }
+    }
     orbit.update();renderer.render(scene,camera);
   }
   // Populate baseline coordinates for animation, without mutating geometry.
   const originalRebuild=rebuild;
   function configure(next:DoorConfiguration){
-    config=next;originalRebuild();
+    const sizeChanged = next.width !== config.width || next.height !== config.height;
+    config = next;
+    originalRebuild();
     for(const part of frameSegments){part.mesh.userData.x0=part.mesh.position.x;part.mesh.userData.y0=part.mesh.position.y;}
+    // Changing a frame finish must never unexpectedly rotate or zoom the camera.
+    if (sizeChanged) setCameraPreset(currentCamera);
   }
   const resize=new ResizeObserver(()=>{
     const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);
@@ -185,13 +218,20 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   });
   const observe=new IntersectionObserver(entries=>{visible=Boolean(entries[0]?.isIntersecting)},{threshold:.01});
   resize.observe(host);observe.observe(host);
-  configure(initial);animate();
+  configure(initial);
+  const startDistance = Math.max(3.9, width*2.1, height*2.25);
+  orbit.target.set(0, height*.51, 0);
+  camera.position.set(startDistance*.46, height*.68, startDistance*.87);
+  camera.lookAt(orbit.target);
+  setCameraPreset('angle');
+  animate();
   return{
     configure,
     setOpen(v){openTarget=clamp(v,0,1)},
     setExploded(v){explodedTarget=v?1:0},
     focus(p){chosen=p;applyPartFocus()},
     resetCamera,
+    setCameraPreset,
     dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(frameId);resize.disconnect();observe.disconnect();orbit.dispose();clearProduct();ground.geometry.dispose();(ground.material as THREE.Material).dispose();renderer.dispose();renderer.domElement.remove();}
   };
 }
