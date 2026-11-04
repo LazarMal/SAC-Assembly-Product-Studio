@@ -34,6 +34,12 @@ jobs:
           ref: refactor/modular-foundation
           path: development
           persist-credentials: false
+      - name: Check out isolated IDD 3D feature
+        uses: actions/checkout@v4
+        with:
+          ref: feature/idd-three-viewer
+          path: candidate
+          persist-credentials: false
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -47,21 +53,33 @@ jobs:
           npm run typecheck
           npm test
           npm run build -- --base=/SAC-Assembly-Product-Studio/preview/
+      - name: Build and test candidate IDD 3D studio
+        working-directory: candidate/apps/studio
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+          npm run build -- --base=/SAC-Assembly-Product-Studio/preview-next/
       - name: Assemble Pages artifact without changing production
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p site/preview
+          mkdir -p site/preview site/preview-next
           cp production/index.html production/venetian.html production/insect-door.html production/odd-door.html site/
           touch site/.nojekyll
           cp -a development/apps/studio/dist/. site/preview/
           node development/apps/studio/scripts/prepare-legacy-viewers.mjs production site/preview
+          cp -a candidate/apps/studio/dist/. site/preview-next/
+          node candidate/apps/studio/scripts/prepare-legacy-viewers.mjs production site/preview-next
           test -f site/index.html
           test -f site/odd-door.html
           test -f site/preview/index.html
           test -f site/preview/viewers/venetian.html
           test -f site/preview/viewers/insect-door.html
           test -f site/preview/viewers/odd-door.html
+          test -f site/preview-next/index.html
+          test -f site/preview-next/viewers/insect-door.html
+          grep -q '/SAC-Assembly-Product-Studio/preview-next/' site/preview-next/index.html
           grep -q '/SAC-Assembly-Product-Studio/preview/' site/preview/index.html
           echo 'Production files remain unchanged; preview at /preview/'
       - name: Configure GitHub Pages
