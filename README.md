@@ -1,40 +1,24 @@
-# S.A.C. Assembly — Product Collection
+# S.A.C. Assembly — Home Collection
 
-Interaktivni demo katalog sa **Venetian Blinds** i **IDD Insect Door** konfiguratorima.
+Premium interactive demo catalog for three product families:
 
-## Pokretanje
+- Venetian blinds (`venetian.html`)
+- IDD Original Pleated Screen Door (`insect-door.html`) — mounted inside the opening
+- ODD Original Pleated Screen Door (`odd-door.html`) — surface/on-face mounted over the opening, Single/Double
 
-Otvorite `index.html` lokalno ili u VS Code-u pokrenite **Live Server**.
-Sve tri HTML stranice moraju ostati u istom folderu:
+## Run
+Open `index.html` or run `python -m http.server 8000` and browse to http://localhost:8000.
 
-- `index.html` — katalog sa scroll animacijom
-- `venetian.html` — Venetian Blind konfigurator
-- `insect-door.html` — IDD Insect Door konfigurator
+The three configurators use the same shared navigation, panels, controls and mobile behavior.
+No backend, payments or login. All images and scripts are embedded in their HTML files.
 
-Slike, CSS i JavaScript su ugrađeni u HTML, bez potrebe za build korakom ili bazom podataka.
+## Production status
+This is a **visual/interactive concept**, not a signed-off manufacturing specification or
+quotation engine. ODD outside-mount framing and mitred joints are informed by KeJe
+public information; profile section details must be verified with actual S.A.C.
+production drawings. PCF RAL options are included; widths/heights are demo assumptions.
+`Supplier` is a free-text field until a definitive supplier list exists.
+Quantity has no configured upper limit.
 
-## GitHub Pages — automatski deploy
-
-1. Napravite GitHub repozitorijum (preporučeni naziv: `SAC-Assembly-Product-Studio`).
-2. Postavite **sadržaj ovog foldera u root repozitorijuma** na granu `main`, uključujući skriveni `.github` folder.
-3. GitHub **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. GitHub **Actions → Deploy S.A.C. Assembly website**. Posle uspešnog workflow-a dobijate live URL, obično `https://KORISNIK.github.io/REPO/`.
-5. Svaki naredni `git push` na `main` automatski pokreće novo objavljivanje.
-
-Ako koristite privatni repozitorijum, proverite podršku svog GitHub plana za Pages. Kod javnog repozitorijuma i GitHub Pages i izvorni kod su javno dostupni.
-
-## Ažuriranje
-
-Napravi izmene u VS Code-u, pa:
-
-```bash
-git add .
-git commit -m "Update S.A.C. product studio"
-git push
-```
-
-Nakon uspešnog GitHub Actions deploy-a izmene će biti live.
-
-## Važno
-
-Ovo je **vizuelni prototip**. Prikazane komponente i konfiguracije nisu potvrđena proizvodna specifikacija i ne služe za obračun narudžbina.
+## Publishing
+GitHub Pages deploys automatically on pushes to `main` via the existing workflow.
