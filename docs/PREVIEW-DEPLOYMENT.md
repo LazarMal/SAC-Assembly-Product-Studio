@@ -13,3 +13,7 @@ The deployment workflow resides on `main`, checks out the candidate feature bran
 **Do not rerun a previously successful Pages deployment job to refresh the preview.** That can create a second `github-pages` artifact in the same run, causing `actions/deploy-pages` to fail with “Multiple artifacts named github-pages”. Use a new workflow run instead.
 
 Do not merge unapproved product geometry, RAL visualizations, or conceptual dimension ranges into production manufacturing logic.
+
+## Deploy retry — 2026-11-04
+
+The feature branch `feature/idd-three-viewer` includes the Neutral/Studio lighting buttons and passed TypeScript, tests, and build checks. The previous Pages publishing attempt exhausted the hosted deployment waiting period after remaining in `updating_pages`; source upload and assembly completed successfully. This documentation-only push intentionally triggers a **fresh** GitHub Pages workflow run while retaining the existing production HTML and the unmerged feature branch. Review the new run status before claiming that the updated preview is live.
