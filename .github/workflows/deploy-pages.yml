@@ -1,4 +1,4 @@
-name: Deploy S.A.C. Assembly website
+name: Deploy production and modular preview
 
 on:
   push:
@@ -16,19 +16,56 @@ concurrency:
 
 jobs:
   deploy:
+    name: Publish production root and React preview
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out site
+      - name: Check out production source
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: production
+          persist-credentials: false
+      - name: Check out React preview source
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/modular-foundation
+          path: development
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: development/apps/studio/package-lock.json
+      - name: Build and test React preview
+        working-directory: development/apps/studio
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+          npm run build -- --base=/SAC-Assembly-Product-Studio/preview/
+      - name: Assemble Pages artifact without changing production
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/preview
+          cp production/index.html production/venetian.html production/insect-door.html production/odd-door.html site/
+          touch site/.nojekyll
+          cp -a development/apps/studio/dist/. site/preview/
+          test -f site/index.html
+          test -f site/odd-door.html
+          test -f site/preview/index.html
+          grep -q '/SAC-Assembly-Product-Studio/preview/' site/preview/index.html
+          echo 'Production files remain unchanged; preview at /preview/'
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Upload static website
+      - name: Upload static site and preview
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-      - name: Deploy to GitHub Pages
+          path: site
+      - name: Publish GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
