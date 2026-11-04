@@ -34,8 +34,8 @@ export default function ProductPage() {
         <h1>{product.feature}</h1>
         <p className="detail-lead">{product.description}</p>
         <p className="detail-note">Explore the current interactive model with real-time options, assembly animations and component inspection. This existing viewer stays available while we build the new modular studio.</p>
-        {product.id==='idd'&&<div className="product-beta-link"><Link className="button button-dark" to="/products/idd-insect-doors/3d">Explore IDD in 3D <span aria-hidden="true">↗</span></Link><p className="concept-caption">New modular WebGL prototype · in development</p></div>}
-        <a className="button button-dark" href={legacyViewerUrl(product.legacyFile)}>Open original configurator <span aria-hidden="true">↗</span></a>
+        {product.id==='idd'&&<div className="product-beta-link"><Link className="button button-dark" to="/products/idd-insect-doors/3d">View IDD in 3D <span aria-hidden="true">↗</span></Link><p className="concept-caption">Full-screen product presentation · interactive 3D preview</p></div>}
+        <a className="button button-dark" href={legacyViewerUrl(product.legacyFile)}>Configure product <span aria-hidden="true">↗</span></a>
         <div className="detail-meta"><strong>Studio capabilities</strong>
           {loadError ? <p>Details unavailable. You can still open the interactive viewer.</p> : !definition ? <p aria-live="polite">Loading product details…</p> : <>
             <ul>
