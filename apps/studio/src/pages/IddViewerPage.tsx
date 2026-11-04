@@ -27,7 +27,7 @@ export default function IddViewerPage() {
   const [opened, setOpened] = useState(35);
   const [exploded, setExploded] = useState(false);
   const [preset, setPreset] = useState<CameraPreset>('angle');
-  const [lightingMode, setLightingMode] = useState<LightingMode>('neutral');
+  const [lightingMode, setLightingMode] = useState<LightingMode>('studio');
   const [expanded, setExpanded] = useState(false);
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function IddViewerPage() {
         renderer.current = model;
         model.setOpen(.35);
         model.setCameraPreset('angle');
-        model.setLightingMode('neutral');
+        model.setLightingMode('studio');
         setReady(true);
       } catch (error) {
         setFailure(error instanceof Error ? error.message : '3D rendering is unavailable in this browser.');
@@ -107,25 +107,23 @@ export default function IddViewerPage() {
           <strong>IDD / Pleated insect door</strong>
           <span>3D product showcase · conceptual model</span>
         </div>
-        <button className="showroom-icon-button" type="button"
-          onClick={() => setExpanded(x => !x)}
-          aria-label={expanded ? 'Exit immersive view' : 'Expand to immersive view'}>
-          {expanded ? 'Close full view' : 'Full view'} <span aria-hidden="true">{expanded ? '↙' : '↗'}</span>
-        </button>
-      </div>
-
-      <div className="showroom-lighting" role="group" aria-label="Product lighting">
-        <div className="showroom-lighting-tabs">
-          <button type="button" aria-pressed={lightingMode === 'neutral'}
-            onClick={() => setLightingMode('neutral')}>Neutral view</button>
-          <button type="button" aria-pressed={lightingMode === 'studio'}
-            onClick={() => setLightingMode('studio')}>Studio view</button>
+        <div className="showroom-topbar-actions">
+          <button className="showroom-icon-button" type="button"
+            onClick={() => setExpanded(x => !x)}
+            aria-label={expanded ? 'Exit immersive view' : 'Expand to immersive view'}>
+            {expanded ? 'Close full view' : 'Full view'} <span aria-hidden="true">{expanded ? '↙' : '↗'}</span>
+          </button>
+          <div className="showroom-lighting" role="group" aria-label="Background and lighting style">
+            <div className="showroom-lighting-tabs">
+              <button type="button" aria-pressed={lightingMode === 'studio'}
+                aria-label="Studio: white background and neutral lighting"
+                onClick={() => setLightingMode('studio')}>Studio</button>
+              <button type="button" aria-pressed={lightingMode === 'natural'}
+                aria-label="Natural: gently tinted warm background"
+                onClick={() => setLightingMode('natural')}>Natural</button>
+            </div>
+          </div>
         </div>
-        <span className="showroom-lighting-hint" aria-live="polite">
-          {lightingMode === 'neutral'
-            ? 'Balanced lighting to compare frame finishes'
-            : 'Warm directional lighting to reveal depth'}
-        </span>
       </div>
 
       <div className="showroom-view-options" role="group" aria-label="Camera views">

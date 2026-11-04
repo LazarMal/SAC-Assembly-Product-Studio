@@ -17,7 +17,7 @@ export type DoorConfiguration = {
 };
 export type DoorPart = 'frame' | 'mesh' | 'pull' | 'guide';
 export type CameraPreset = 'front' | 'angle' | 'side' | 'back';
-export type LightingMode = 'neutral' | 'studio';
+export type LightingMode = 'natural' | 'studio';
 export interface DoorViewer {
   configure(config: DoorConfiguration): void;
   setOpen(value: number): void;
@@ -42,14 +42,14 @@ const makeBar=(w:number,h:number,d:number,material:THREE.Material) => new THREE.
 export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration): DoorViewer {
   const scene = new THREE.Scene();
   // Lighting changes never rebuild the product or touch its camera.
-  const backdrop = new THREE.Color('#eeefed');
+  const backdrop = new THREE.Color('#ffffff');
   scene.background = backdrop;
   const camera = new THREE.PerspectiveCamera(36,1,.05,80);
   const renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.12;
+  renderer.toneMappingExposure=1.18;
   host.appendChild(renderer.domElement);
   renderer.domElement.setAttribute('aria-label','Rotatable 3D pleated insect door illustration');
   renderer.domElement.style.width='100%';renderer.domElement.style.height='100%';renderer.domElement.style.display='block';
@@ -57,37 +57,38 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   orbit.enableDamping=true;orbit.dampingFactor=.075;orbit.enablePan=false;
   orbit.minDistance=2.1;orbit.maxDistance=12;
   orbit.minPolarAngle=.12;orbit.maxPolarAngle=Math.PI-.2;
-  const hemisphere = new THREE.HemisphereLight('#ffffff', '#dcdeda', 2.6);
+  const hemisphere = new THREE.HemisphereLight('#ffffff', '#eeeeee', 2.7);
   scene.add(hemisphere);
   const key = new THREE.DirectionalLight('#ffffff', 2.1);
   key.position.set(-3,5,6);scene.add(key);
   const rim = new THREE.DirectionalLight('#ffffff', .7);
   rim.position.set(4,3,-4);scene.add(rim);
-  const groundMaterial = new THREE.MeshStandardMaterial({color:'#e4e5e2',roughness:1});
+  const groundMaterial = new THREE.MeshStandardMaterial({color:'#f6f6f6',roughness:1});
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200),groundMaterial);
   ground.rotation.x=-Math.PI/2;ground.position.y=-.025;scene.add(ground);
 
-  // Neutral is a non-tinted comparison view; Studio emphasizes frame depth.
-  // Neither constitutes a physically calibrated reproduction of RAL finishes.
+  // Studio: clean white backdrop, balanced light. Natural: a subtly darker
+  // warm-grey tint akin to the original configurator stage, without changing RAL materials.
+  // Display colors are conceptual and not calibrated for manufacturing.
   const lightingPalettes = {
-    neutral: {
-      background:new THREE.Color('#eeefed'), floor:new THREE.Color('#e4e5e2'),
-      sky:new THREE.Color('#ffffff'), bounce:new THREE.Color('#dcdeda'),
-      key:new THREE.Color('#ffffff'), rim:new THREE.Color('#ffffff'),
-      hemisphere:2.6, keyPower:2.1, rimPower:.7, exposure:1.12
-    },
     studio: {
-      background:new THREE.Color('#ded7cf'), floor:new THREE.Color('#cfc5ba'),
-      sky:new THREE.Color('#fff9f0'), bounce:new THREE.Color('#9f8f80'),
-      key:new THREE.Color('#ffe7cc'), rim:new THREE.Color('#b8d2f2'),
-      hemisphere:1.9, keyPower:3.1, rimPower:1.3, exposure:1.33
+      background:new THREE.Color('#ffffff'), floor:new THREE.Color('#f6f6f6'),
+      sky:new THREE.Color('#ffffff'), bounce:new THREE.Color('#eeeeee'),
+      key:new THREE.Color('#ffffff'), rim:new THREE.Color('#ffffff'),
+      hemisphere:2.7, keyPower:2.1, rimPower:.7, exposure:1.18
+    },
+    natural: {
+      background:new THREE.Color('#d4ccc1'), floor:new THREE.Color('#c7bdb2'),
+      sky:new THREE.Color('#fff9f3'), bounce:new THREE.Color('#b8aa9c'),
+      key:new THREE.Color('#fff3e8'), rim:new THREE.Color('#e1e7ea'),
+      hemisphere:2.35, keyPower:2.5, rimPower:.9, exposure:1.14
     }
   } satisfies Record<LightingMode, {
     background:THREE.Color; floor:THREE.Color; sky:THREE.Color;
     bounce:THREE.Color; key:THREE.Color; rim:THREE.Color;
     hemisphere:number; keyPower:number; rimPower:number; exposure:number;
   }>;
-  let lightingMode: LightingMode = 'neutral';
+  let lightingMode: LightingMode = 'studio';
   function setLightingMode(next: LightingMode) {
     lightingMode = next;
   }

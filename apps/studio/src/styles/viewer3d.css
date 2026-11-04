@@ -6,7 +6,7 @@
 .showroom-intro p{max-width:670px;font-size:16px;line-height:1.65;color:var(--ink-muted);margin:0}
 .showroom-configure-link{white-space:nowrap;font-size:14px;font-weight:650;border-bottom:1px solid currentColor;padding:0 0 8px;margin-bottom:6px}
 .showroom-configure-link span{margin-left:14px}
-.showroom-stage{position:relative;height:min(83svh,860px);min-height:570px;width:min(calc(100% - 56px),1640px);margin:0 auto;overflow:hidden;border-radius:12px;background:#e8e5df;isolation:isolate}
+.showroom-stage{position:relative;height:min(83svh,860px);min-height:570px;width:min(calc(100% - 56px),1640px);margin:0 auto;overflow:hidden;border-radius:12px;background:#ffffff;isolation:isolate}
 .showroom-stage.is-expanded{position:fixed;inset:0;z-index:1000;width:100vw;height:100dvh;max-height:none;min-height:0;border-radius:0;margin:0}
 .showroom-canvas{position:absolute;inset:0;touch-action:none}
 .showroom-topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:start;gap:15px;padding:23px 27px;pointer-events:none}
@@ -16,11 +16,11 @@
 .showroom-product-tag span{font-size:12px}
 .showroom-icon-button{border:1px solid #d8d0c5;background:rgba(255,254,250,.93);color:#302820;border-radius:7px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:630}
 .showroom-icon-button span{margin-left:10px}
-.showroom-lighting{position:absolute;z-index:3;top:79px;left:50%;transform:translateX(-50%);display:grid;justify-items:center;gap:9px;max-width:calc(100% - 30px);pointer-events:none}
-.showroom-lighting-tabs{display:flex;align-items:center;gap:3px;padding:4px;border-radius:9px;background:rgba(255,253,249,.96);border:1px solid #ded5ca;box-shadow:0 7px 22px #2c211819;pointer-events:auto}
-.showroom-lighting-tabs button{white-space:nowrap;cursor:pointer;border:0;background:transparent;color:#52463c;font-size:12px;font-weight:650;padding:10px 14px;border-radius:6px;min-height:39px}
+.showroom-topbar-actions{display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:0 0 auto}
+.showroom-lighting{position:static;z-index:auto;max-width:none;transform:none;pointer-events:auto}
+.showroom-lighting-tabs{display:flex;align-items:center;gap:3px;padding:4px;border-radius:9px;background:rgba(255,253,249,.95);border:1px solid #ded5ca;box-shadow:0 7px 22px #2c211819}
+.showroom-lighting-tabs button{white-space:nowrap;cursor:pointer;border:0;background:transparent;color:#52463c;font-size:12px;font-weight:650;padding:9px 14px;border-radius:6px;min-height:38px}
 .showroom-lighting-tabs button[aria-pressed=true]{background:#302924;color:#fff}
-.showroom-lighting-hint{max-width:300px;text-align:center;font-size:11px;font-weight:580;line-height:1.3;color:#4b4037;text-shadow:0 1px 9px #fff,0 1px 3px #fff;white-space:nowrap}
 .showroom-view-options{position:absolute;z-index:2;top:50%;left:19px;transform:translateY(-50%);display:grid;gap:6px}
 .showroom-view-options button{cursor:pointer;border:1px solid #dad3c9;border-radius:6px;background:rgba(255,253,249,.93);color:#4b423a;padding:10px 12px;font-size:12px;min-width:80px;text-align:left}
 .showroom-view-options button[aria-pressed=true]{background:#302924;color:#fff;border-color:#302924}
@@ -47,6 +47,6 @@
 .showroom-after p{font-size:16px;line-height:1.7;color:var(--ink-muted);margin:0}
 .showroom-after .button{flex-shrink:0}
 @media(max-width:1000px){.showroom-stage{width:calc(100% - 30px)}.showroom-selections{gap:13px}.showroom-motion{flex:1;min-width:150px}.showroom-after{padding-top:65px}}
-@media(max-width:700px){.showroom-lighting{top:77px;gap:6px}.showroom-lighting-tabs button{font-size:11px;min-height:35px;padding:8px 11px}.showroom-lighting-hint{font-size:10px}.showroom-view-options{top:145px!important}}
-@media(max-width:700px){.showroom-intro{display:block}.showroom-intro .showroom-configure-link{display:inline-block;margin-top:16px}.showroom-stage{height:73svh;min-height:600px;width:100%;border-radius:0}.showroom-topbar{padding:15px}.showroom-product-tag span{font-size:11px}.showroom-view-options{top:90px;left:11px;transform:none;display:flex;flex-wrap:wrap;max-width:calc(100% - 22px);gap:5px}.showroom-view-options button{padding:8px 10px;min-width:auto;font-size:11px}.showroom-bottom{left:10px;right:10px;bottom:10px;gap:8px}.showroom-selections{padding:12px;gap:13px}.showroom-color-group{flex-wrap:wrap}.showroom-motion{width:100%;flex-basis:100%}.showroom-bottom-foot span:last-child{display:none}.showroom-after{display:block;padding-top:56px;padding-bottom:75px}.showroom-after .button{margin-top:22px}}
-@media(max-width:390px){.showroom-product-tag{max-width:55%}.showroom-option-title{width:100%;flex-basis:100%}.showroom-bottom-foot{font-size:10px}.showroom-icon-button{padding:9px 10px}.showroom-view-options{top:145px}}
+@media(max-width:700px){.showroom-topbar-actions{gap:7px}.showroom-lighting-tabs{padding:3px;gap:2px}.showroom-lighting-tabs button{font-size:11px;min-height:34px;padding:7px 10px}.showroom-view-options{top:148px!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));max-width:145px!important}.showroom-view-options button{min-width:0!important;text-align:center}}
+@media(max-width:700px){.showroom-intro{display:block}.showroom-intro .showroom-configure-link{display:inline-block;margin-top:16px}.showroom-stage{height:73svh;min-height:600px;width:100%;border-radius:0}.showroom-topbar{padding:15px}.showroom-product-tag span{font-size:11px}.showroom-view-options{top:148px;left:11px;transform:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:145px;gap:5px}.showroom-view-options button{padding:8px 10px;min-width:auto;font-size:11px}.showroom-bottom{left:10px;right:10px;bottom:10px;gap:8px}.showroom-selections{padding:12px;gap:13px}.showroom-color-group{flex-wrap:wrap}.showroom-motion{width:100%;flex-basis:100%}.showroom-bottom-foot span:last-child{display:none}.showroom-after{display:block;padding-top:56px;padding-bottom:75px}.showroom-after .button{margin-top:22px}}
+@media(max-width:390px){.showroom-product-tag{max-width:43%}.showroom-product-tag strong{font-size:12px}.showroom-option-title{width:100%;flex-basis:100%}.showroom-bottom-foot{font-size:10px}.showroom-icon-button{padding:9px 10px;font-size:11px}.showroom-view-options{top:135px!important}}
