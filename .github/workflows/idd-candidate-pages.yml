@@ -1,0 +1,85 @@
+name: Deploy IDD 3D candidate preview
+
+on:
+  push:
+    branches:
+      - feature/idd-three-viewer
+    paths:
+      - ".github/workflows/idd-candidate-pages.yml"
+      - "apps/studio/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    name: Build candidate and preserve stable pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout public production
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: production
+          persist-credentials: false
+      - name: Checkout stable modular preview
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/modular-foundation
+          path: stable
+          persist-credentials: false
+      - name: Checkout candidate 3D prototype
+        uses: actions/checkout@v4
+        with:
+          ref: feature/idd-three-viewer
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build stable preview
+        working-directory: stable/apps/studio
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build -- --base=/SAC-Assembly-Product-Studio/preview/
+      - name: Build candidate WebGL preview
+        working-directory: candidate/apps/studio
+        run: |
+          npm install --no-audit --no-fund
+          npm run typecheck
+          npm test
+          npm run test:navigation
+          npm run build -- --base=/SAC-Assembly-Product-Studio/preview-next/
+      - name: Preserve production, stable preview and new candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/preview site/preview-next
+          cp production/index.html production/venetian.html production/insect-door.html production/odd-door.html site/
+          touch site/.nojekyll
+          cp -a stable/apps/studio/dist/. site/preview/
+          node stable/apps/studio/scripts/prepare-legacy-viewers.mjs production site/preview
+          cp -a candidate/apps/studio/dist/. site/preview-next/
+          node candidate/apps/studio/scripts/prepare-legacy-viewers.mjs production site/preview-next
+          test -f site/index.html
+          test -f site/preview/index.html
+          test -f site/preview-next/index.html
+          test -f site/preview-next/viewers/insect-door.html
+          grep -q '/SAC-Assembly-Product-Studio/preview-next/' site/preview-next/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy candidate preview on GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
