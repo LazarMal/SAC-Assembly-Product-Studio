@@ -2,7 +2,7 @@ name: Deploy production and modular preview
 
 on:
   push:
-    branches: [main]
+    branches: [main, refactor/modular-foundation]
   workflow_dispatch:
 
 permissions:
@@ -55,9 +55,13 @@ jobs:
           cp production/index.html production/venetian.html production/insect-door.html production/odd-door.html site/
           touch site/.nojekyll
           cp -a development/apps/studio/dist/. site/preview/
+          node development/apps/studio/scripts/prepare-legacy-viewers.mjs production site/preview
           test -f site/index.html
           test -f site/odd-door.html
           test -f site/preview/index.html
+          test -f site/preview/viewers/venetian.html
+          test -f site/preview/viewers/insect-door.html
+          test -f site/preview/viewers/odd-door.html
           grep -q '/SAC-Assembly-Product-Studio/preview/' site/preview/index.html
           echo 'Production files remain unchanged; preview at /preview/'
       - name: Configure GitHub Pages
