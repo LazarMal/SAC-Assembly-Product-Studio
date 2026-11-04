@@ -8,7 +8,8 @@
     "build": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:navigation": "node --test scripts/legacy-navigation.test.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

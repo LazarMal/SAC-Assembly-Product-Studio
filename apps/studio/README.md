@@ -26,7 +26,7 @@ npm run build
 npm run preview
 ```
 
-Production preview builds use the GitHub Pages project base path `/SAC-Assembly-Product-Studio/studio/`, but the app is **not yet deployed to production**. Never change `main` or the existing Pages workflow as part of Phase 2.
+Production preview builds use the GitHub Pages project base path `/SAC-Assembly-Product-Studio/preview/`, but it is published as an isolated preview; production root stays unchanged. Never change `main` or the existing Pages workflow as part of Phase 2.
 
 ## Design principles
 
@@ -42,7 +42,7 @@ Production preview builds use the GitHub Pages project base path `/SAC-Assembly-
 
 Vite dev routes: `/#/`, `/#/collection`, `/#/products/odd-insect-doors`.
 
-When eventually published at `https://lazarmal.github.io/SAC-Assembly-Product-Studio/studio/`, the `legacyViewerUrl` helper links up one directory to the existing unchanged standalone pages. Confirm every deep link before release.
+When eventually published at `https://lazarmal.github.io/SAC-Assembly-Product-Studio/preview/`, preview viewer copies live under `/preview/viewers/` and navigate back through React routes; the production root HTML is unmodified. Confirm every deep link before release.
 
 ## Next migration step
 

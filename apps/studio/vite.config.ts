@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rewriteLegacyNavigation } from './scripts/legacy-navigation.mjs';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const legacyRoot = resolve(currentDir, '../..');
@@ -22,7 +23,7 @@ function legacyPreviewBridge(): Plugin {
           const content = readFileSync(resolve(legacyRoot, name), 'utf8');
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
           response.setHeader('Cache-Control', 'no-store');
-          response.end(content);
+          response.end(rewriteLegacyNavigation(content, '/#/'));
         } catch {
           response.statusCode = 404;
           response.end(`Legacy preview unavailable: ${name}`);

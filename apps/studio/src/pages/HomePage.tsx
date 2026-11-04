@@ -1,20 +1,12 @@
 import { Link } from 'react-router-dom';
 import { catalog } from '../features/catalog/catalog';
 import { ProductCard } from '../components/ProductCard';
-import { assetUrl } from '../shared/urls';
+import { LightStory } from '../features/home/LightStory';
 
 export default function HomePage() {
   return (
     <main id="main-content">
-      <section className="hero" aria-labelledby="home-title">
-        <div className="hero-image" style={{backgroundImage: `url('${assetUrl('assets/living-room.webp')}')`}} role="img" aria-label="Sunlit living room with a garden-facing window" />
-        <div className="hero-content">
-          <span className="hero-brand">S.A.C. Assembly</span>
-          <h1 id="home-title">A little more <em>room to live.</em></h1>
-          <p>Considered window systems that make everyday spaces feel just right.</p>
-          <Link className="button button-dark" to="/collection">Explore the collection <span aria-hidden="true">↗</span></Link>
-        </div>
-      </section>
+      <LightStory />
       <section className="home-intro container">
         <h2>Made for real homes, explored in detail.</h2>
         <p>Discover finishes, understand the construction and picture the product in your space. Every choice should feel considered.</p>
