@@ -83,7 +83,7 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
     clearProduct();
     width=clamp(config.width/1000,.5,4.5);
     height=clamp(config.height/1000,1.1,3.7);
-    const paint=edgeMaterial(RAL_SWATCHES[config.frameColor]||RAL_SWATCHES.RAL7016);
+    const paint=edgeMaterial(RAL_SWATCHES[config.frameColor] ?? '#383f43');
     const guide=edgeMaterial(config.guideFinish==='black'?'#22272a':config.guideFinish==='grey'?'#838583':'#bcbcb7');
     const pullMat=edgeMaterial(RAL_SWATCHES[config.frameColor]||'#383f43');
     const rail=.038,depth=.065;
