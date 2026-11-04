@@ -314,14 +314,24 @@ html body .stage-actions .sym,html body .scene-actions .mode-symbol{display:none
 @keyframes inspectorReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:730px){.part-inspector{padding:12px;margin:0 0 12px;gap:12px}.part-inspector__art{flex-basis:78px;width:78px;height:62px}.part-inspector__art svg{width:78px;height:62px}.part-inspector__title{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.part-inspector{animation:none}}
-</style><style id="sac-mobile-controls">@media(max-width:730px){.stage-actions .word{display:inline!important}.stage-actions{gap:2px!important;max-width:calc(100vw - 16px)!important}.stage-actions button{padding:8px 7px!important;font-size:10px!important}.panescroll{scroll-padding-top:16px}}</style></head>
+</style><style id="sac-three-product-header">
+@media(max-width:730px){
+ html body .shared-header{height:102px!important;min-height:102px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding:9px 12px 8px!important}
+ html body .shared-brand{flex:0 0 32px!important;min-height:32px!important;margin:0!important;align-self:flex-start!important}
+ html body .shared-links{position:static!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;min-width:0!important;width:100%!important;height:40px!important;max-height:40px!important;flex:0 0 40px!important;gap:4px!important;display:flex!important;justify-content:space-between!important;align-items:center!important;overflow-x:auto!important;overscroll-behavior-x:contain!important;scrollbar-width:none!important}
+ html body .shared-links::-webkit-scrollbar{display:none!important}
+ html body .shared-links .shared-index{display:none!important}
+ html body .shared-links a{height:38px!important;min-height:38px!important;max-height:38px!important;min-width:0!important;flex:1 1 0!important;display:inline-flex!important;justify-content:center!important;padding:8px 7px!important;font-size:11px!important;line-height:1.1!important}
+}
+@media(max-width:350px){html body .shared-links a{font-size:10px!important;padding:7px 5px!important}}
+</style></head>
 <body data-s-a-c-product="venetian">
 <div class="app">
 <header aria-label="Main navigation" class="shared-header">
 <a aria-label="S.A.C. Assembly — Home" class="shared-brand" href="./index.html"><span class="shared-wordmark"><b>S.A.C.</b> Assembly</span></a>
 
 
-<nav aria-label="Products" class="shared-links"><a class="shared-index" href="./index.html">Collection</a><a class="current" data-product-link="venetian" href="./venetian.html">Venetian blinds</a><a data-product-link="idd" href="./insect-door.html">Insect doors</a></nav>
+<nav aria-label="Products" class="shared-links"><a class="shared-index" href="./index.html">Collection</a><a class="current" data-product-link="venetian" href="./venetian.html">Venetian blinds</a><a data-product-link="idd" href="./insect-door.html">IDD doors</a><a data-product-link="odd" href="./odd-door.html">ODD doors</a></nav>
 
 </header>
 <main class="main">
@@ -397,10 +407,10 @@ function projection(p){
    }
  }else if(state.view==='neutral'){
    let s=Math.min(cssW/4.68,cssH/3.75)*a.zoom;
-   scaleX=s;scaleY=s;originX=cssW*(window.innerWidth<=730?.50:.61);originY=cssH*.515;
+   scaleX=s;scaleY=s;originX=cssW*(window.innerWidth<=730?.68:.61);originY=cssH*.515;
  }else{
    let s=Math.min(cssW/4.56,cssH/3.56)*a.zoom;
-   scaleX=s;scaleY=s;originX=cssW*(window.innerWidth<=730?.50:.61);originY=cssH*.525;
+   scaleX=s;scaleY=s;originX=cssW*(window.innerWidth<=730?.68:.61);originY=cssH*.525;
  }
  // Living Room: slight downward right-hand perspective follows the photo's sill.
  // This correction is applied to every vertex, keeping hardware and slats registered.
@@ -462,7 +472,7 @@ if(a.guides>.003){let v=a.guides;for(let side of [-1,1]){let x=side*(W/2+(state.
 // Chain or wand moves to opposite side when switched; slightly out from product
 let sx=a.controlSide;let controlX=sx*(W/2-.085+(1-ass)*.75+exp*.32+(1-a.controlReveal)*.18),controlY=TOP-.165-exp*.08,controlZ=.225;componentOpacity*=a.controlReveal;box(controlX-.052,controlY-.026,controlZ-.045,controlX+.052,controlY+.075,controlZ+.07,tint(hard,.86),'control');
 if(state.control==='chain'){let radius=.075,chainLength=.80;for(let side of [-1,1]){let xc=controlX+side*radius;line([P(xc,controlY,controlZ),P(xc,controlY-chainLength,controlZ)],rgb(tint(hard,.60)),2.8,componentOpacity,'control');for(let i=0;i<24;i++){let y=controlY-i*chainLength/23;let pt=projection(P(xc,y,controlZ+.018));primitives.push({kind:'bead',x:pt.x,y:pt.y,r:clamp(pt.scale*.009,1.4,3.4),color:rgb(tint(hard,i%2?1.4:.75)),dep:pt.z+.03,tag:'control'})}}const segments=15;for(let i=0;i<segments;i++){let t1=Math.PI+i*Math.PI/segments,t2=Math.PI+(i+1)*Math.PI/segments;line([P(controlX+radius*Math.cos(t1),controlY-chainLength+radius*Math.sin(t1),controlZ),P(controlX+radius*Math.cos(t2),controlY-chainLength+radius*Math.sin(t2),controlZ)],rgb(hard),2.4,componentOpacity,'control')}}else{line([P(controlX,controlY,controlZ),P(controlX,controlY-.89,controlZ+.10)],rgb(tint(hard,1.06)),5.6,componentOpacity,'control');box(controlX-.027,controlY-.94,controlZ+.07,controlX+.027,controlY-.83,controlZ+.15,tint(hard,.72),'control')}
-const controlAnchor=projection(P(controlX,controlY-.22,.27));hotspots={slats:projection(P(0,.02+slatOffset,.28)),headrail:projection(P(0,TOP+headOffset,.2)),control:controlAnchor,bottomrail:projection(P(0,bottomY-.04+bottomOffset,.3)),guides:projection(P(W/2+exp*.22,-.18,.2)),tapes:projection(P(-.70,-.05+slatOffset,.38))};
+const controlAnchor=projection(P(controlX,TOP-.39,.27));hotspots={slats:projection(P(0,.02,.28)),headrail:projection(P(0,TOP,.2)),control:controlAnchor,bottomrail:projection(P(0,bottomY-.04,.3)),guides:projection(P(W/2,-.18,.2)),tapes:projection(P(-.70,-.05,.38))};
 }
 function drawPrimitives(){const order={mounting:0,ladders:1,slats:2,tapes:3,bottomrail:4,guides:5,headrail:6,control:7};primitives.sort((a,b)=>(order[a.tag]??2)-(order[b.tag]??2)||a.dep-b.dep);for(let p of primitives){const selectedTag={slats:['slats'],headrail:['headrail','mounting'],control:['control'],bottomrail:['bottomrail'],guides:['guides'],tapes:['tapes','ladders']}[showHighlight]||[];const isolate=state.explode&&showHighlight&&performance.now()<highlightUntil;ctx.globalAlpha=(p.alpha??1)*(isolate&&!selectedTag.includes(p.tag)?.33:1);if(p.kind==='bead'){circle(p.x,p.y,p.r,p.color);continue}ctx.beginPath();ctx.moveTo(p.q[0].x,p.q[0].y);for(let i=1;i<p.q.length;i++)ctx.lineTo(p.q[i].x,p.q[i].y);if(p.kind==='line'){ctx.strokeStyle=p.color;ctx.lineWidth=p.width;ctx.lineCap='round';ctx.stroke()}else{ctx.closePath();ctx.fillStyle=p.color;ctx.fill();if(p.stroke){ctx.strokeStyle=p.stroke;ctx.lineWidth=p.lw;ctx.stroke()}}}ctx.globalAlpha=1}
 
@@ -687,7 +697,7 @@ function render(now){
  const still=assemblyStart<0&&Math.abs(a.yaw-state.yaw)<.002&&Math.abs(a.pitch-state.pitch)<.002&&Math.abs(a.zoom-state.zoom)<.003&&Math.abs(a.tilt-state.tilt)<.18&&Math.abs(a.raise-state.raise)<.18&&Math.abs(a.explode-(state.explode?1:0))<.008&&Math.abs(a.guides-(state.guides?1:0))<.008&&Math.abs(a.tapes-(state.tapes?1:0))<.008&&Math.abs(a.controlReveal-1)<.008&&Math.abs(a.controlSide-(state.side==='right'?1:-1))<.008&&a.slatColor.every((c,i)=>Math.abs(c-toRGB(palette[state.color])[i])<1)&&a.hardwareColor.every((c,i)=>Math.abs(c-toRGB(hardware[state.hardware])[i])<1);
  const limit=window.matchMedia('(pointer:coarse)').matches?(still?13:42):(still?22:60);
  if(now-lastPaint<1000/limit){requestAnimationFrame(render);return}lastPaint=now;
- if(!lastTime)lastTime=now;let dt=Math.min((now-lastTime)/1000,.06);lastTime=now;const f=1-Math.pow(.00003,dt),fs=1-Math.pow(.003,dt);a.yaw=lerp(a.yaw,state.yaw,fs);a.pitch=lerp(a.pitch,state.pitch,fs);a.zoom=lerp(a.zoom,state.zoom,fs);a.tilt=lerp(a.tilt,state.tilt,f);a.raise=lerp(a.raise,state.raise,f);a.tapes=lerp(a.tapes,state.tapes?1:0,f);a.guides=lerp(a.guides,state.guides?1:0,f);a.explode=lerp(a.explode,state.explode?1:0,f);a.controlSide=lerp(a.controlSide,state.side==='right'?1:-1,f);a.controlReveal=lerp(a.controlReveal,1,1-Math.pow(.00008,dt));a.slatColor=mix(a.slatColor,toRGB(palette[state.color]),f);a.hardwareColor=mix(a.hardwareColor,toRGB(hardware[state.hardware]),f);if(assemblyStart>=0){let t=(now-assemblyStart)/2400;if(t>=1){assemblyStart=-1;a.assembly=1}else a.assembly=smooth(t)}else a.assembly=lerp(a.assembly,1,f);ctx.clearRect(0,0,cssW,cssH);if(state.view==='living'){drawMountedScene()}else{backdrop();sceneExtras();build();drawPrimitives();vignette()}drawFocusOverlay();if(state.explode&&state.view!=='living'){const labels=[['headrail','HEADRAIL'],['slats','SLATS'],['control','CONTROL'],['bottomrail','BOTTOM RAIL']];for(const [part,name] of labels)if(showHighlight!==part||performance.now()>highlightUntil)marker(hotspots[part],name)}requestAnimationFrame(render)}requestAnimationFrame(render);
+ if(!lastTime)lastTime=now;let dt=Math.min((now-lastTime)/1000,.06);lastTime=now;const f=1-Math.pow(.00003,dt),fs=1-Math.pow(.003,dt);a.yaw=lerp(a.yaw,state.yaw,fs);a.pitch=lerp(a.pitch,state.pitch,fs);a.zoom=lerp(a.zoom,state.zoom,fs);a.tilt=lerp(a.tilt,state.tilt,f);a.raise=lerp(a.raise,state.raise,f);a.tapes=lerp(a.tapes,state.tapes?1:0,f);a.guides=lerp(a.guides,state.guides?1:0,f);a.explode=lerp(a.explode,state.explode?1:0,f);a.controlSide=lerp(a.controlSide,state.side==='right'?1:-1,f);a.controlReveal=lerp(a.controlReveal,1,1-Math.pow(.00008,dt));a.slatColor=mix(a.slatColor,toRGB(palette[state.color]),f);a.hardwareColor=mix(a.hardwareColor,toRGB(hardware[state.hardware]),f);if(assemblyStart>=0){let t=(now-assemblyStart)/2400;if(t>=1){assemblyStart=-1;a.assembly=1}else a.assembly=smooth(t)}else a.assembly=lerp(a.assembly,1,f);ctx.clearRect(0,0,cssW,cssH);if(state.view==='living'){drawMountedScene()}else{backdrop();sceneExtras();build();drawPrimitives();vignette()}drawFocusOverlay();if(state.explode&&state.view!=='living'){marker(hotspots.headrail,'HEADRAIL');marker(hotspots.slats,'SLATS');marker(hotspots.control,'CONTROL');marker(hotspots.bottomrail,'BOTTOM RAIL')}requestAnimationFrame(render)}requestAnimationFrame(render);
 function toast(msg){const x=$('toast');x.textContent=msg;x.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove('show'),2250)}
 function activate(parent,button){parent.querySelectorAll('button').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button))})}
 function updateSummary(){
@@ -733,7 +743,7 @@ function switchView(view){
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 function playAssembly(silent=false){if(state.view==='living')switchView('studio');assemblyStart=performance.now();a.assembly=0;state.explode=false;syncExplodeButton();if(!silent)toast('Playing the assembly sequence in Studio')}
 function syncExplodeButton(){$('explode').classList.toggle('active',state.explode);$('explode').innerHTML=state.explode?'<span class="sym">×</span> Reassemble':'<span class="sym">◈</span> Exploded'}
-function toggleExplode(){if(state.view==='living'&&!state.explode)switchView('studio');state.explode=!state.explode;if(state.explode){state.zoom=.76;state.pitch=.04;state.yaw=-.11}else{state.zoom=1;showHighlight='';inspector.classList.remove('show')}syncExplodeButton();toast(state.explode?'Explore the separate assemblies in Studio':'Product reassembled')}
+function toggleExplode(){if(state.view==='living'&&!state.explode)switchView('studio');state.explode=!state.explode;syncExplodeButton();toast(state.explode?'Explore the separate assemblies in Studio':'Product reassembled')}
 $('assemble').onclick=playAssembly;$('assemblePanel').onclick=()=>{setPane('assembly');playAssembly()};
 $('explode').onclick=toggleExplode;$('explodePanel').onclick=toggleExplode;
 $('zoomin').onclick=()=>state.zoom=clamp(state.zoom+.10,state.view==='living'?1:.72,state.view==='living'?1.28:1.5);
@@ -745,7 +755,7 @@ function focusPart(part){
  showHighlight=part;highlightUntil=performance.now()+9500;
  if(state.view==='living'){state.zoom=1.08;state.yaw=0;state.pitch=0}
  else{
-  state.explode=true;syncExplodeButton();state.zoom=.78;state.yaw=part==='control'?(state.side==='right'?.13:-.13):-.09;state.pitch=.035;
+  state.explode=true;syncExplodeButton();state.zoom=.93;state.yaw=part==='control'?(state.side==='right'?.13:-.13):-.09;state.pitch=.035;
  }
  inspectPart(part,true);
  toast('Inspecting '+({slats:'slats',headrail:'headrail',control:'control',bottomrail:'bottom rail',guides:'guides',tapes:'ladder tapes'}[part]||'component'));
