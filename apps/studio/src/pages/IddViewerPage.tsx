@@ -98,7 +98,7 @@ export default function IddViewerPage(){
           <input id="door-open" type="range" min="0" max="100" value={open} onChange={e=>setOpen(Number(e.target.value))}/></div>
         <fieldset className="viewer-choice"><legend>Inspect a component</legend><div className="viewer-choice-options">
           {(['frame','mesh','pull','guide'] as const).map(id=><button type="button" key={id} aria-pressed={part===id}
-          className={'viewer-option'+(part===id?' is-selected':'')} onClick={()=>setPart(current=>current===id?null:id)}>{id==='pull'?'Pull bar':id[0].toUpperCase()+id.slice(1)}</button>)}
+          className={'viewer-option'+(part===id?' is-selected':'')} onClick={()=>setPart(current=>current===id?null:id)}>{id==='pull'?'Pull bar':id.charAt(0).toUpperCase()+id.slice(1)}</button>)}
         </div></fieldset>
         {!result.ok&&<div className="viewer-validation" role="alert">{result.issues.join('. ')}</div>}
         <div className="viewer-disclaimer">Illustrative 3D geometry. Dimensions are preview inputs only; production limits, profiles and RAL matches require approved technical data.</div>
