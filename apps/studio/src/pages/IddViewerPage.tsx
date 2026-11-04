@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { DoorConfiguration, DoorViewer, CameraPreset } from '../features/viewer3d/createDoorViewer';
+import type { DoorConfiguration, DoorViewer, CameraPreset, LightingMode } from '../features/viewer3d/createDoorViewer';
 import { RAL_HEX } from '../products/shared/ralColors';
 
 const initial: DoorConfiguration = {
@@ -27,6 +27,7 @@ export default function IddViewerPage() {
   const [opened, setOpened] = useState(35);
   const [exploded, setExploded] = useState(false);
   const [preset, setPreset] = useState<CameraPreset>('angle');
+  const [lightingMode, setLightingMode] = useState<LightingMode>('neutral');
   const [expanded, setExpanded] = useState(false);
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function IddViewerPage() {
         renderer.current = model;
         model.setOpen(.35);
         model.setCameraPreset('angle');
+        model.setLightingMode('neutral');
         setReady(true);
       } catch (error) {
         setFailure(error instanceof Error ? error.message : '3D rendering is unavailable in this browser.');
@@ -62,6 +64,7 @@ export default function IddViewerPage() {
   useEffect(() => { renderer.current?.setOpen(opened / 100); }, [opened, ready]);
   useEffect(() => { renderer.current?.setExploded(exploded); }, [exploded, ready]);
   useEffect(() => { renderer.current?.setCameraPreset(preset); }, [preset, ready]);
+  useEffect(() => { renderer.current?.setLightingMode(lightingMode); }, [lightingMode, ready]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -109,6 +112,20 @@ export default function IddViewerPage() {
           aria-label={expanded ? 'Exit immersive view' : 'Expand to immersive view'}>
           {expanded ? 'Close full view' : 'Full view'} <span aria-hidden="true">{expanded ? '↙' : '↗'}</span>
         </button>
+      </div>
+
+      <div className="showroom-lighting" role="group" aria-label="Product lighting">
+        <div className="showroom-lighting-tabs">
+          <button type="button" aria-pressed={lightingMode === 'neutral'}
+            onClick={() => setLightingMode('neutral')}>Neutral view</button>
+          <button type="button" aria-pressed={lightingMode === 'studio'}
+            onClick={() => setLightingMode('studio')}>Studio view</button>
+        </div>
+        <span className="showroom-lighting-hint" aria-live="polite">
+          {lightingMode === 'neutral'
+            ? 'Balanced lighting to compare frame finishes'
+            : 'Warm directional lighting to reveal depth'}
+        </span>
       </div>
 
       <div className="showroom-view-options" role="group" aria-label="Camera views">
