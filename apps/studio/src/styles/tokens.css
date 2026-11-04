@@ -1,0 +1,15 @@
+:root {
+  color-scheme: light;
+  --ink: #26211e;
+  --ink-muted: #6b625d;
+  --cream: #f7f4ee;
+  --paper: #fffefa;
+  --warm: #e9e1d6;
+  --accent: #956f52;
+  --accent-dark: #705138;
+  --stroke: #e0d9cf;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+  --content-max: 1320px;
+  --ease: cubic-bezier(.23, 1, .32, 1);
+}
