@@ -59,6 +59,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run typecheck
           npm test
+          npm run test:navigation
           npm run build -- --base=/SAC-Assembly-Product-Studio/preview-next/
       - name: Assemble Pages artifact without changing production
         shell: bash
@@ -79,6 +80,7 @@ jobs:
           test -f site/preview/viewers/odd-door.html
           test -f site/preview-next/index.html
           test -f site/preview-next/viewers/insect-door.html
+          test -f site/preview-next/assets/idd.webp
           grep -q '/SAC-Assembly-Product-Studio/preview-next/' site/preview-next/index.html
           grep -q '/SAC-Assembly-Product-Studio/preview/' site/preview/index.html
           echo 'Production files remain unchanged; preview at /preview/'
