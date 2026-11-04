@@ -17,3 +17,7 @@ Do not merge unapproved product geometry, RAL visualizations, or conceptual dime
 ## Deploy retry — 2026-11-04
 
 The feature branch `feature/idd-three-viewer` includes the Neutral/Studio lighting buttons and passed TypeScript, tests, and build checks. The previous Pages publishing attempt exhausted the hosted deployment waiting period after remaining in `updating_pages`; source upload and assembly completed successfully. This documentation-only push intentionally triggers a **fresh** GitHub Pages workflow run while retaining the existing production HTML and the unmerged feature branch. Review the new run status before claiming that the updated preview is live.
+
+## IDD lighting and controls update — 2026-11-04
+
+Candidate feature commit `d11c8b82c4b9acd1360a762a64248e93bd00d8ec` relocates the Studio/Natural control to the top-right below Full view, keeps the center clear, sets Studio to a white scene and Natural to a warmer, slightly darker tinted scene. The candidate passed migration and modular studio checks. This documentation-only change requests a fresh Pages build for the preview without modifying production HTML. Deployment success must still be confirmed independently.
