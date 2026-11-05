@@ -116,12 +116,6 @@ export default function IddViewerPage() {
 
     <section className={'showroom-stage' + (expanded ? ' is-expanded' : '')}
       aria-label="Interactive 3D presentation of the IDD insect door">
-      <div ref={canvasHost} className="showroom-canvas" />
-      {!ready && !failure && <div className="showroom-status" role="status">Loading the 3D product…</div>}
-      {failure && <div className="showroom-status" role="alert">The 3D presentation isn't available: {failure}
-        <a href={originalUrl}>Open the detailed configurator</a>
-      </div>}
-
       <div className="showroom-topbar">
         <div className="showroom-product-tag">
           <strong>IDD / Pleated insect door</strong>
@@ -146,13 +140,20 @@ export default function IddViewerPage() {
         </div>
       </div>
 
-      <div className="showroom-view-options" role="group" aria-label="Camera views">
+      <div className="showroom-viewport">
+        <div className="showroom-view-options" role="group" aria-label="Camera views">
         {views.map(view => <button key={view.id} type="button"
           aria-pressed={preset === view.id}
           onClick={() => { setPreset(view.id); renderer.current?.setCameraPreset(view.id); }}>
           {view.label}
         </button>)}
-        <button type="button" onClick={() => { setPreset('angle'); renderer.current?.resetCamera(); }}>Reset</button>
+          <button type="button" onClick={() => { setPreset('angle'); renderer.current?.resetCamera(); }}>Reset</button>
+        </div>
+        <div ref={canvasHost} className="showroom-canvas" />
+        {!ready && !failure && <div className="showroom-status" role="status">Loading the 3D product…</div>}
+        {failure && <div className="showroom-status" role="alert">The 3D presentation isn't available: {failure}
+          <a href={originalUrl}>Open the detailed configurator</a>
+        </div>}
       </div>
 
       <div className="showroom-bottom">
