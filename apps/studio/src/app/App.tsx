@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { SiteHeader } from '../components/SiteHeader';
 import { SiteFooter } from '../components/SiteFooter';
 import { ScrollToTop } from './ScrollToTop';
@@ -7,7 +7,6 @@ import { ScrollToTop } from './ScrollToTop';
 const HomePage = lazy(() => import('../pages/HomePage'));
 const CatalogPage = lazy(() => import('../pages/CatalogPage'));
 const ProductPage = lazy(() => import('../pages/ProductPage'));
-const IddViewerPage = lazy(() => import('../pages/IddViewerPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 export function App() {
@@ -20,7 +19,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/collection" element={<CatalogPage />} />
-          <Route path="/products/idd-insect-doors/3d" element={<IddViewerPage />} />
+          <Route path="/products/idd-insect-doors/3d" element={<Navigate to="/products/idd-insect-doors" replace />} />
           <Route path="/products/:slug" element={<ProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
