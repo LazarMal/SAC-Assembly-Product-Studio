@@ -141,6 +141,11 @@ export function decorateQuietDetails(html,product){
      ' inspectPart(part,!fromOption);',
      ' if(!fromOption)inspectPart(part,true);',
      file+' automatic inspector');
+   // Option changes must never reset the camera in the mounted room scene.
+   result=one(result,
+     " }else if(state.scene==='room'){\n  // Keep the screen installed in the photographed doorway while showing its detail.\n  state.zoom=1;\n }\n if(!fromOption)inspectPart(part,true);",
+     " }\n if(!fromOption)inspectPart(part,true);",
+     file+' preserve room camera');
  }
  const marker=isBlind?
   "updateSummary();\nswitchView('studio');\nsetPane('configure');":
