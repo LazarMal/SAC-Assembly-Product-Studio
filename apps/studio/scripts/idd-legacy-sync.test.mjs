@@ -5,10 +5,10 @@ import { resolve } from 'node:path';
 import { decorateIddLegacyPreview } from './idd-legacy-sync.mjs';
 import { rewriteLegacyNavigation } from './legacy-navigation.mjs';
 
-test('the deployed IDD copy exposes selection sync and a visible 3D link', () => {
+test('the deployed IDD copy preserves selection and adds a magnified detail preview', () => {
   const original = readFileSync(resolve(process.cwd(), '../../insect-door.html'), 'utf8');
   const adapted = decorateIddLegacyPreview(rewriteLegacyNavigation(original, '../#/'));
-  expect(adapted).toContain('class="sac-detail-card"');
+  expect(adapted).toContain("sacCard.className='sac-detail-card'");
   expect(adapted).toContain('sacShowDetail(part)');
   expect(adapted).not.toContain('id="sac-idd-open-3d"');
   expect(adapted).toContain('window.SAC_IDD_BRIDGE');
