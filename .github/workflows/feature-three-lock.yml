@@ -1,0 +1,30 @@
+name: Generate locked Three.js dependencies
+
+on:
+  push:
+    branches: [feature/idd-three-viewer]
+    paths:
+      - ".github/workflows/feature-three-lock.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Update lockfile from verified npm registry
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund --prefix apps/studio
+      - name: Commit lockfile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/studio/package-lock.json
+          git diff --cached --quiet || git commit -m "build: lock Three.js dependencies"
+          git push origin HEAD:feature/idd-three-viewer

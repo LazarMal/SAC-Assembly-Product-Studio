@@ -15,3 +15,5 @@ createRoot(container).render(
     </HashRouter>
   </StrictMode>
 );
+
+import './styles/viewer3d.css';
