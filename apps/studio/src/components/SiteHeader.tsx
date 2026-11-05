@@ -10,8 +10,7 @@ export function SiteHeader() {
         </NavLink>
         <nav className="primary-nav" aria-label="Main navigation">
           <NavLink to="/" end className={({isActive}) => isActive ? 'nav-active' : ''}>Home</NavLink>
-          <NavLink to="/collection" className={({isActive}) => isActive ? 'nav-active' : ''}>Collection</NavLink>
-          <a href="https://github.com/LazarMal/SAC-Assembly-Product-Studio" target="_blank" rel="noopener noreferrer">Project source <span aria-hidden="true">↗</span></a>
+          <NavLink to="/collection" className={({isActive}) => isActive ? 'nav-active' : ''}>Products</NavLink>
         </nav>
       </div>
     </header>

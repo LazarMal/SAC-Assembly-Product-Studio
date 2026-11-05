@@ -6,34 +6,34 @@ export const catalog = [
     id: 'venetian',
     slug: 'venetian-blinds',
     title: 'Venetian blinds',
-    family: 'Light control',
-    description: 'Fine-tune the light. Explore slat finishes, hardware and movement.',
+    family: 'Adjustable slat system',
+    description: 'Choose slat widths, finishes, control hardware and movement.',
     image: 'venetian.webp',
     imageAlt: 'Warm ivory Venetian blind in a domestic interior',
     legacyFile: 'venetian.html',
-    feature: 'Light, precisely yours.'
+    feature: 'Venetian blinds.'
   },
   {
     id: 'idd',
     slug: 'idd-insect-doors',
     title: 'Insect doors · IDD',
     family: 'In-reveal installation',
-    description: 'A pleated insect screen, fitted neatly within your doorway.',
+    description: 'A pleated insect screen fitted within the doorway opening.',
     image: 'idd.webp',
     imageAlt: 'Pleated insect door fitted inside an opening',
     legacyFile: 'insect-door.html',
-    feature: 'Make room for fresh air.'
+    feature: 'In-reveal insect doors.'
   },
   {
     id: 'odd',
     slug: 'odd-insect-doors',
     title: 'Insect doors · ODD',
-    family: 'Surface mounting',
-    description: 'The same thoughtful screen system with an external mounting surround.',
+    family: 'Surface-mounted installation',
+    description: 'A pleated screen with an outer mounting frame for the face of the opening.',
     image: 'odd.webp',
     imageAlt: 'Surface mounted pleated insect door with outer frame',
     legacyFile: 'odd-door.html',
-    feature: 'A seamless welcome to outdoors.'
+    feature: 'Surface-mounted insect doors.'
   }
 ] as const satisfies readonly CatalogEntry[];
 
