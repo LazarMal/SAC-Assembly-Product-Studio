@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { rewriteLegacyNavigation } from './scripts/legacy-navigation.mjs';
 import { decorateIddLegacyPreview } from './scripts/idd-legacy-sync.mjs';
+import { decorateQuietDetails } from './scripts/quiet-details.mjs';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const legacyRoot = resolve(currentDir, '../..');
@@ -25,7 +26,9 @@ function legacyPreviewBridge(): Plugin {
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
           response.setHeader('Cache-Control', 'no-store');
           const rewritten = rewriteLegacyNavigation(content, '/#/');
-          response.end(name === 'insect-door.html' ? decorateIddLegacyPreview(rewritten) : rewritten);
+          const synced = name === 'insect-door.html' ? decorateIddLegacyPreview(rewritten) : rewritten;
+          const product = name === 'venetian.html' ? 'venetian' : name === 'insect-door.html' ? 'idd' : 'odd';
+          response.end(decorateQuietDetails(synced, product));
         } catch {
           response.statusCode = 404;
           response.end(`Legacy preview unavailable: ${name}`);
