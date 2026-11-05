@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { DoorConfiguration, DoorViewer, CameraPreset, LightingMode } from '../features/viewer3d/createDoorViewer';
+import type { DoorConfiguration, DoorViewer, CameraPreset, LightingMode, DoorPart } from '../features/viewer3d/createDoorViewer';
 import { RAL_HEX } from '../products/shared/ralColors';
 import { readIddSelection, writeIddSelection, toDoorConfiguration } from '../features/configurator/iddSharedSelection';
 
@@ -24,6 +24,10 @@ const views: { id: CameraPreset; label: string }[] = [
 export default function IddViewerPage() {
   const canvasHost = useRef<HTMLDivElement>(null);
   const renderer = useRef<DoorViewer | null>(null);
+  const detailNode = useRef<HTMLDivElement>(null);
+  const detailToken = useRef(0);
+  const pendingDetail = useRef<{part:DoorPart; title:string; description:string}|null>(null);
+  const [detail, setDetail] = useState<{title:string; description:string}|null>(null);
   const [loadedSelection] = useState(() => readIddSelection());
   const [configuration, setConfiguration] = useState<DoorConfiguration>(() =>
     loadedSelection ? toDoorConfiguration(loadedSelection) : initial
@@ -40,7 +44,17 @@ export default function IddViewerPage() {
     setConfiguration(s => s.variant === variant ? s : ({
       ...s, variant, width: s.width * (variant === 'double' ? 2 : .5)
     }));
-  const setFrameColor = (frameColor: string) => setConfiguration(s => ({ ...s, frameColor }));
+  const changeWithDetail = (
+    patch: Partial<DoorConfiguration>, part: DoorPart, title: string, description: string
+  ) => {
+    pendingDetail.current = {part,title,description};
+    setExploded(false);
+    setConfiguration(s => ({...s,...patch}));
+  };
+  const setFrameColor = (frameColor: string) => changeWithDetail(
+    {frameColor}, 'frame', frameColor.replace(/^RAL/, 'RAL '),
+    'Selected finish applied to the perimeter frame'
+  );
 
   useEffect(() => {
     let active = true;
@@ -68,7 +82,29 @@ export default function IddViewerPage() {
     };
   }, []);
 
-  useEffect(() => { if (ready) renderer.current?.configure(configuration); }, [configuration, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    const model = renderer.current;
+    if (!model) return;
+    model.configure(configuration);
+    const next = pendingDetail.current;
+    if (!next) return;
+    pendingDetail.current = null;
+    const token = ++detailToken.current;
+    setDetail({title:next.title, description:next.description});
+    model.inspect(next.part, (x,y) => {
+      if (detailToken.current !== token) return;
+      if (x === null || y === null) {
+        setDetail(null);
+        return;
+      }
+      const bubble = detailNode.current;
+      if (bubble) {
+        bubble.style.left = x + 'px';
+        bubble.style.top = y + 'px';
+      }
+    });
+  }, [configuration, ready]);
   useEffect(() => { renderer.current?.setOpen(opened / 100); }, [opened, ready]);
   useEffect(() => { renderer.current?.setExploded(exploded); }, [exploded, ready]);
   useEffect(() => { renderer.current?.setCameraPreset(preset); }, [preset, ready]);
@@ -141,50 +177,107 @@ export default function IddViewerPage() {
       </div>
 
       <div className="showroom-viewport">
-        <div className="showroom-view-options" role="group" aria-label="Camera views">
-        {views.map(view => <button key={view.id} type="button"
-          aria-pressed={preset === view.id}
-          onClick={() => { setPreset(view.id); renderer.current?.setCameraPreset(view.id); }}>
-          {view.label}
-        </button>)}
-          <button type="button" onClick={() => { setPreset('angle'); renderer.current?.resetCamera(); }}>Reset</button>
+        <div className="showroom-canvas-wrap">
+          <div ref={canvasHost} className="showroom-canvas" />
+          {detail && <div className="showroom-detail-callout" ref={detailNode} role="status">
+            <strong>{detail.title}</strong><span>{detail.description}</span>
+          </div>}
+          {!ready && !failure && <div className="showroom-status" role="status">Loading the 3D product…</div>}
+          {failure && <div className="showroom-status" role="alert">The 3D presentation isn't available: {failure}
+            <a href={originalUrl}>Open the detailed configurator</a>
+          </div>}
         </div>
-        <div ref={canvasHost} className="showroom-canvas" />
-        {!ready && !failure && <div className="showroom-status" role="status">Loading the 3D product…</div>}
-        {failure && <div className="showroom-status" role="alert">The 3D presentation isn't available: {failure}
-          <a href={originalUrl}>Open the detailed configurator</a>
-        </div>}
+        <div className="showroom-viewport-foot">
+          <span>Drag to rotate · Scroll or pinch to zoom</span>
+          <span>Illustrative 3D model — not a technical drawing</span>
+        </div>
       </div>
 
-      <div className="showroom-bottom">
+      <aside className="showroom-bottom" aria-label="3D presentation controls">
+        <div className="showroom-panel-head">
+          <h2>Explore your IDD.</h2>
+          <p>See the system in detail. Your selection stays connected to the configurator.</p>
+        </div>
         <div className="showroom-selections">
-          <div className="showroom-option-set" role="group" aria-label="Door presentation">
-            <span className="showroom-option-title">System</span>
-            <button type="button" aria-pressed={configuration.variant === 'single'} onClick={() => setVariant('single')}>Single</button>
-            <button type="button" aria-pressed={configuration.variant === 'double'} onClick={() => setVariant('double')}>Double</button>
+          <div className="showroom-field">
+            <div className="showroom-field-heading"><span>Door system</span><strong>{configuration.width} × {configuration.height} mm</strong></div>
+            <div className="showroom-option-set" role="group" aria-label="Door presentation">
+              <button type="button" aria-pressed={configuration.variant === 'single'} onClick={() => setVariant('single')}>Single</button>
+              <button type="button" aria-pressed={configuration.variant === 'double'} onClick={() => setVariant('double')}>Double</button>
+            </div>
           </div>
-          <div className="showroom-color-group" role="group" aria-label="Preview frame finish">
-            <span className="showroom-option-title">Frame preview</span>
-            {Object.entries(RAL_HEX).map(([name,color]) =>
-              <button type="button" key={name} aria-label={'Frame color ' + name}
-                aria-pressed={configuration.frameColor === name}
-                title={name} onClick={() => setFrameColor(name)}>
-                <span style={{backgroundColor:color}} />
-              </button>)}
+
+          <div className="showroom-field">
+            <div className="showroom-field-heading"><span>Frame finish</span><strong>{configuration.frameColor.replace(/^RAL/, 'RAL ')}</strong></div>
+            <div className="showroom-color-group" role="group" aria-label="Preview frame finish">
+              {Object.entries(RAL_HEX).map(([name,color]) =>
+                <button type="button" key={name} aria-label={'Frame color ' + name}
+                  aria-pressed={configuration.frameColor === name}
+                  title={name} onClick={() => setFrameColor(name)}>
+                  <span style={{backgroundColor:color}} />
+                </button>)}
+            </div>
           </div>
-          <div className="showroom-motion" >
-            <label htmlFor="showroom-opening">Slide mesh <strong>{opened}%</strong></label>
-            <input id="showroom-opening" type="range" min="0" max="100"
-              value={opened} onChange={e => setOpened(Number(e.target.value))}/>
+
+          <div className="showroom-field">
+            <div className="showroom-field-heading"><span>Lower guide</span><strong>{configuration.guideShape === 'straight' ? 'Straight' : 'Slope'}</strong></div>
+            <div className="showroom-option-set" role="group" aria-label="Guide profile shape">
+              <button type="button" aria-pressed={configuration.guideShape === 'straight'}
+                onClick={() => changeWithDetail({guideShape:'straight'}, 'guide', 'Straight lower guide', 'Flat threshold profile selected')}>Straight</button>
+              <button type="button" aria-pressed={configuration.guideShape === 'slope'}
+                onClick={() => changeWithDetail({guideShape:'slope'}, 'guide', 'Sloped lower guide', 'Bevelled threshold profile selected')}>Slope</button>
+            </div>
+            <div className="showroom-subheading">Guide finish</div>
+            <div className="showroom-option-set" role="group" aria-label="Guide finish">
+              {(['grey','aluminium','black'] as const).map(finish =>
+                <button type="button" key={finish} aria-pressed={configuration.guideFinish === finish}
+                  onClick={() => changeWithDetail({guideFinish:finish}, 'guide',
+                    finish === 'aluminium' ? 'Aluminium guide' : finish === 'grey' ? 'Grey guide' : 'Black guide',
+                    'Lower threshold finish updated')}>
+                  {finish === 'aluminium' ? 'Aluminium' : finish === 'grey' ? 'Grey' : 'Black'}
+                </button>)}
+            </div>
+          </div>
+
+          <div className="showroom-field">
+            <div className="showroom-field-heading"><span>Closing detail</span><strong>{configuration.extra === 'none' ? 'None' : configuration.extra === 'brush' ? 'Brush' : 'Magnet'}</strong></div>
+            <div className="showroom-option-set" role="group" aria-label="Closing accessory">
+              {(['none','brush','magnet'] as const).map(extra =>
+                <button type="button" key={extra} aria-pressed={configuration.extra === extra}
+                  onClick={() => changeWithDetail({extra}, 'seal',
+                    extra === 'none' ? 'No edge accessory' : extra === 'brush' ? 'Brush seal' : 'Magnetic closure',
+                    extra === 'none' ? 'The closing edge is shown without an accessory'
+                      : extra === 'brush' ? 'Flexible bristles added to the closing edge'
+                      : 'Magnetic strip added to the closing edge')}>
+                  {extra === 'none' ? 'None' : extra === 'brush' ? 'Brush' : 'Magnet'}
+                </button>)}
+            </div>
+          </div>
+
+          <div className="showroom-field">
+            <div className="showroom-motion">
+              <label htmlFor="showroom-opening"><span>Slide mesh</span><strong>{opened}%</strong></label>
+              <input id="showroom-opening" type="range" min="0" max="100"
+                value={opened} onChange={e => setOpened(Number(e.target.value))}/>
+            </div>
           </div>
           <button type="button" className="showroom-explode" aria-pressed={exploded}
-            onClick={() => setExploded(x => !x)}>{exploded ? 'Reassemble' : 'Exploded view'}</button>
+            onClick={() => setExploded(x => !x)}>{exploded ? 'Reassemble system' : 'Explore exploded view'}</button>
+
+          <div className="showroom-field showroom-camera-section">
+            <div className="showroom-field-heading"><span>Camera angle</span></div>
+            <div className="showroom-view-options" role="group" aria-label="Camera views">
+              {views.map(view => <button key={view.id} type="button"
+                aria-pressed={preset === view.id}
+                onClick={() => { setPreset(view.id); renderer.current?.setCameraPreset(view.id); }}>
+                {view.label}
+              </button>)}
+              <button type="button" onClick={() => { setPreset('angle'); renderer.current?.resetCamera(); }}>Reset</button>
+            </div>
+          </div>
         </div>
-        <div className="showroom-bottom-foot">
-          <span>Drag to rotate · Scroll or pinch to zoom</span>
-          <span>Illustrative geometry · not an approved technical model</span>
-        </div>
-      </div>
+        <div className="showroom-panel-footer">Small details briefly zoom into view when selected.</div>
+      </aside>
     </section>
     <section className="showroom-after container" aria-labelledby="showroom-next">
       <div>

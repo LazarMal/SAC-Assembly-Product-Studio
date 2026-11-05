@@ -15,7 +15,7 @@ export type DoorConfiguration = {
   extra: 'none' | 'brush' | 'magnet';
   stackSide: 'left' | 'right';
 };
-export type DoorPart = 'frame' | 'mesh' | 'pull' | 'guide';
+export type DoorPart = 'frame' | 'mesh' | 'pull' | 'guide' | 'seal';
 export type CameraPreset = 'front' | 'angle' | 'side' | 'back';
 export type LightingMode = 'natural' | 'studio';
 export interface DoorViewer {
@@ -26,6 +26,7 @@ export interface DoorViewer {
   resetCamera(): void;
   setCameraPreset(preset: CameraPreset): void;
   setLightingMode(mode: LightingMode): void;
+  inspect(part: DoorPart, onPosition: (x: number | null, y: number | null) => void): void;
   dispose(): void;
 }
 type Leaf = { folds: THREE.Mesh[]; pull: THREE.Mesh; fromLeft: boolean };
@@ -95,7 +96,7 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   const product=new THREE.Group();scene.add(product);
   let config=initial;let width=1;let height=2;let leaves:Leaf[]=[];
   let openTarget=.32,openCurrent=.32,explodedTarget=0,explodeCurrent=0,chosen:DoorPart|null=null;
-  let parts:Record<DoorPart,THREE.Mesh[]>={frame:[],mesh:[],pull:[],guide:[]};
+  let parts:Record<DoorPart,THREE.Mesh[]>={frame:[],mesh:[],pull:[],guide:[],seal:[]};
   let frameSegments:{mesh:THREE.Mesh;offset:THREE.Vector3}[]=[];
   let originalMaterials=new Map<THREE.Mesh,THREE.MeshStandardMaterial>();
   let disposed=false,visible=true,frameId=0;
@@ -103,12 +104,38 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   let desiredCamera: THREE.Vector3 | null = null;
   let desiredTarget: THREE.Vector3 | null = null;
   let currentCamera: CameraPreset = 'angle';
-  orbit.addEventListener('start', () => { desiredCamera = null; desiredTarget = null; });
+  type Inspection = {
+    until: number;
+    anchor: THREE.Vector3;
+    returnPosition: THREE.Vector3;
+    returnTarget: THREE.Vector3;
+    onPosition: (x: number | null, y: number | null) => void;
+  };
+  let inspection: Inspection | null = null;
+  function finishInspection(restore: boolean) {
+    if (!inspection) return;
+    const current = inspection;
+    inspection = null;
+    current.onPosition(null, null);
+    chosen = null;
+    applyPartFocus();
+    orbit.minDistance = 2.1;
+    if (restore) {
+      desiredCamera = current.returnPosition;
+      desiredTarget = current.returnTarget;
+    }
+  }
+  // Dragging, pinching or wheel input always takes priority over a cinematic preview.
+  orbit.addEventListener('start', () => {
+    finishInspection(false);
+    desiredCamera = null;
+    desiredTarget = null;
+  });
   function clearProduct(){
     const usedMaterials = new Set<THREE.Material>();
     product.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.geometry.dispose();const mats=Array.isArray(obj.material)?obj.material:[obj.material];mats.forEach(m=>usedMaterials.add(m))}});
     usedMaterials.forEach(material => material.dispose());
-    product.clear();parts={frame:[],mesh:[],pull:[],guide:[]};frameSegments=[];leaves=[];originalMaterials.clear();
+    product.clear();parts={frame:[],mesh:[],pull:[],guide:[],seal:[]};frameSegments=[];leaves=[];originalMaterials.clear();
   }
   function register(mesh:THREE.Mesh,type:DoorPart){
     parts[type].push(mesh);
@@ -134,8 +161,28 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
     frameBar(rail,height,depth,-width/2-rail/2,height/2,0,paint,new THREE.Vector3(-.18,0,0));
     frameBar(rail,height,depth,width/2+rail/2,height/2,0,paint,new THREE.Vector3(.18,0,0));
     const pathW=width;
-    const guideThickness=config.guideShape==='slope'?.021:.013;
-    for(const z of [-.025,.025]) {
+    // Readable concept-level threshold profiles rather than a tiny thickness change.
+    // The tilted wedge communicates the slope, not a verified manufacturing section.
+    if (config.guideShape === 'slope') {
+      const shape = new THREE.Shape();
+      shape.moveTo(-.060, 0);
+      shape.lineTo(.060, 0);
+      shape.lineTo(.060, .010);
+      shape.lineTo(-.060, .047);
+      shape.closePath();
+      const wedge = new THREE.Mesh(
+        new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: false }),
+        guide
+      );
+      wedge.rotation.y = Math.PI / 2;
+      wedge.position.set(-width / 2, .005, 0);
+      register(wedge, 'guide');
+    } else {
+      const threshold = register(makeBar(width, .018, .095, guide), 'guide');
+      threshold.position.set(0, .015, 0);
+    }
+    const guideThickness=config.guideShape==='slope'?.029:.018;
+    for(const z of [-.035,.035]) {
       const runner=register(makeBar(pathW,.009,guideThickness,guide),'guide');
       runner.position.set(0,.026,z);
       const top=register(makeBar(pathW,.009,guideThickness,guide),'guide');
@@ -162,9 +209,28 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
       sliding.userData={left,right};
     }
     if(config.extra!=='none'){
-      const mat=new THREE.MeshStandardMaterial({color:config.extra==='magnet'?'#343635':'#565855',metalness:.2,roughness:.85});
-      const edge=register(makeBar(.007,height-.11,.017,mat),'guide');
-      edge.position.set(config.variant==='double'?0:(config.stackSide==='right'?-width/2:width/2),height/2,.055);
+      // Enlarged illustrative details: magnetic strip vs flexible brush bristles.
+      const sealX = config.variant==='double' ? 0
+        : (config.stackSide==='right' ? -width/2 + .045 : width/2 - .045);
+      const sealMat = new THREE.MeshStandardMaterial({
+        color:config.extra==='magnet'?'#a77d49':'#4a4137',
+        metalness:config.extra==='magnet'?.3:0,roughness:.7
+      });
+      const strip=register(makeBar(.018,height-.12,.032,sealMat),'seal');
+      strip.position.set(sealX,height/2,.072);
+      if(config.extra==='brush'){
+        const bristleMat=new THREE.MeshStandardMaterial({color:'#675749',roughness:1});
+        // Instancing avoids dozens of draw calls and keeps component highlighting consistent.
+        const geo=new THREE.BoxGeometry(.022,.012,.005);
+        const bristles=new THREE.InstancedMesh(geo,bristleMat,52);
+        const matrix=new THREE.Matrix4();
+        for(let i=0;i<52;i++){
+          matrix.makeTranslation(sealX+.022,.10+(height-.20)*i/51,.093);
+          bristles.setMatrixAt(i,matrix);
+        }
+        bristles.instanceMatrix.needsUpdate=true;
+        register(bristles as unknown as THREE.Mesh,'seal');
+      }
     }
     applyPartFocus();
   }
@@ -177,6 +243,7 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
     }
   }
   function setCameraPreset(preset: CameraPreset){
+    finishInspection(false);
     currentCamera = preset;
     const distance = Math.max(3.9, width*2.1, height*2.25);
     const directions: Record<CameraPreset, [number, number, number]> = {
@@ -192,6 +259,35 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
   }
   function resetCamera(){
     setCameraPreset('angle');
+  }
+  function inspect(part: DoorPart, onPosition: (x: number | null, y: number | null) => void) {
+    // Any new selection replaces the previous preview and never accumulates timers.
+    finishInspection(false);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const anchor = part === 'guide' ? new THREE.Vector3(0, .045, .10)
+      : part === 'seal' ? new THREE.Vector3(
+          config.variant === 'double' ? 0 : (config.stackSide === 'right' ? -width/2+.045 : width/2-.045),
+          height*.52, .09
+        )
+      : part === 'frame' ? new THREE.Vector3(-width*.5, height*.74, .05)
+      : part === 'pull' ? new THREE.Vector3(0, height*.55, .075)
+      : new THREE.Vector3(0, height*.55, .03);
+    inspection = {
+      until: performance.now() + (reduced ? 1900 : 2850),
+      anchor,
+      returnPosition: camera.position.clone(),
+      returnTarget: orbit.target.clone(),
+      onPosition
+    };
+    chosen = (part === 'seal' && parts.seal.length === 0) ? 'pull' : part;
+    applyPartFocus();
+    if (!reduced) {
+      orbit.minDistance = .55;
+      const direction = new THREE.Vector3(.45,.32,1).normalize();
+      const distance = part === 'guide' ? 1.20 : part === 'seal' ? 1.30 : 1.65;
+      desiredTarget = anchor.clone();
+      desiredCamera = anchor.clone().addScaledVector(direction, distance);
+    }
   }
   function animate(){
     if(disposed)return;
@@ -247,7 +343,22 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
         desiredTarget = null;
       }
     }
-    orbit.update();renderer.render(scene,camera);
+    orbit.update();
+    if (inspection) {
+      const now = performance.now();
+      if (now >= inspection.until) {
+        finishInspection(true);
+      } else {
+        const projected = inspection.anchor.clone().project(camera);
+        const x = (projected.x * .5 + .5) * host.clientWidth;
+        const y = (.5 - projected.y * .5) * host.clientHeight;
+        inspection.onPosition(
+          Math.max(100, Math.min(host.clientWidth-100, x)),
+          Math.max(110, Math.min(host.clientHeight-30, y))
+        );
+      }
+    }
+    renderer.render(scene,camera);
   }
   // Populate baseline coordinates for animation, without mutating geometry.
   const originalRebuild=rebuild;
@@ -280,6 +391,7 @@ export function createDoorViewer(host: HTMLElement, initial: DoorConfiguration):
     resetCamera,
     setCameraPreset,
     setLightingMode,
-    dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(frameId);resize.disconnect();observe.disconnect();orbit.dispose();clearProduct();ground.geometry.dispose();(ground.material as THREE.Material).dispose();renderer.dispose();renderer.domElement.remove();}
+    inspect,
+    dispose(){if(disposed)return;finishInspection(false);disposed=true;cancelAnimationFrame(frameId);resize.disconnect();observe.disconnect();orbit.dispose();clearProduct();ground.geometry.dispose();(ground.material as THREE.Material).dispose();renderer.dispose();renderer.domElement.remove();}
   };
 }
