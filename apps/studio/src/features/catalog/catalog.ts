@@ -34,6 +34,12 @@ export const catalog = [
     imageAlt: 'Surface mounted pleated insect door with outer frame',
     legacyFile: 'odd-door.html',
     feature: 'Surface-mounted insect doors.'
+  },
+  {
+    id: 'roller', slug: 'open-roller-blind', title: 'Open roller blind',
+    family: 'Manual chain system', description: 'Explore the woven fabric, bracket assembly and manual chain drive.',
+    image: 'roller.webp', imageAlt: 'Open roller blind mounted in a living room',
+    legacyFile: 'open-roller.html', feature: 'Open roller blind.'
   }
 ] as const satisfies readonly CatalogEntry[];
 
@@ -42,6 +48,7 @@ export function findProduct(slug: string): CatalogEntry | undefined {
 }
 
 export const productModules: Record<ProductId, () => Promise<{ definition: import('../configurator/contracts').ProductDefinition }>> = {
+  roller: () => import('../../products/roller/definition'),
   venetian: () => import('../../products/venetian/definition'),
   idd: () => import('../../products/idd/definition'),
   odd: () => import('../../products/odd/definition')

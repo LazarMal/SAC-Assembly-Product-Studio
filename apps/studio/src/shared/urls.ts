@@ -10,5 +10,6 @@ export function assetUrl(path: string) {
  * In dev, the Vite middleware serves the unchanged root HTML at /<file>.
  */
 export function legacyViewerUrl(file: LegacyFile) {
+  if (file === 'open-roller.html') return assetUrl('viewers/open-roller.html');
   return import.meta.env.DEV ? `/${file}` : `${import.meta.env.BASE_URL}viewers/${file}`;
 }
