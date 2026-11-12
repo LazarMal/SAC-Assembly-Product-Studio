@@ -9,13 +9,13 @@ export default function HomePage() {
       <LightStory />
       <section className="home-intro container">
         <h2>Know exactly what you're choosing.</h2>
-        <p>Compare three systems, try different finishes, and inspect the components that make them work. All in one place.</p>
+        <p>Compare the systems, try different finishes, and inspect the components that make them work. All in one place.</p>
       </section>
       <section className="catalog-section container" aria-labelledby="collection-title">
         <div className="section-heading">
           <div>
             <h2 id="collection-title">Choose your system.</h2>
-            <p>Venetian blinds. In-reveal and surface-mounted insect doors.</p>
+            <p>Venetian and roller blinds. In-reveal and surface-mounted insect doors.</p>
           </div>
           <Link className="text-link" to="/collection">See all products <span aria-hidden="true">↗</span></Link>
         </div>
