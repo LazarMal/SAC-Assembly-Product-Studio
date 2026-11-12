@@ -1,0 +1,1 @@
+{"name":"sac-roller-review","version":"1.0.0","type":"module","private":true,"scripts":{"build":"node build.mjs","test":"node --test tests.mjs"},"dependencies":{"three":"0.180.0"},"devDependencies":{"esbuild":"0.25.12"}}
