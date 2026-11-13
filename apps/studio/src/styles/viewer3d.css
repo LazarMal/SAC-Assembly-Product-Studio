@@ -1,0 +1,126 @@
+
+/* IDD showroom — focused 3D canvas and an independent controls sidebar. */
+.showroom-page{min-width:0;padding-top:36px;background:var(--cream)}
+.showroom-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding-bottom:27px}
+.showroom-intro .back-link{margin-bottom:14px}
+.showroom-intro h1{font:400 clamp(42px,5.8vw,80px)/1.03 var(--font-display);letter-spacing:-.055em;margin:0 0 13px}
+.showroom-intro p{max-width:670px;font-size:16px;line-height:1.65;color:var(--ink-muted);margin:0}
+.showroom-configure-link{white-space:nowrap;font-size:14px;font-weight:650;border-bottom:1px solid currentColor;padding:0 0 8px;margin-bottom:6px}
+.showroom-configure-link span{margin-left:14px}
+
+.showroom-stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,24vw,340px);grid-template-rows:auto minmax(0,1fr);width:min(calc(100% - 56px),1640px);height:min(86svh,900px);min-height:630px;margin:0 auto;overflow:hidden;border-radius:13px;background:#fff;isolation:isolate;border:1px solid #e3ddd6}
+.showroom-stage.is-expanded{position:fixed;inset:0;z-index:1000;width:100vw;height:100dvh;max-height:none;min-height:0;border:0;border-radius:0;margin:0}
+.showroom-topbar{grid-column:1/-1;grid-row:1;position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:17px 24px;background:#f8f5f0;border-bottom:1px solid #e7e0d8}
+.showroom-product-tag{display:grid;gap:4px;color:#514942}
+.showroom-product-tag strong{font-size:15px;font-weight:740;color:#312a25}
+.showroom-product-tag span{font-size:12px}
+.showroom-topbar-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px}
+.showroom-icon-button{border:1px solid #d8d0c5;background:#fffefa;color:#302820;border-radius:7px;padding:11px 15px;cursor:pointer;font-size:13px;font-weight:630;white-space:nowrap;min-height:42px}
+.showroom-icon-button span{margin-left:10px}
+.showroom-lighting-tabs{display:flex;align-items:center;gap:3px;padding:3px;border-radius:8px;background:#fffefa;border:1px solid #ded5ca}
+.showroom-lighting-tabs button{white-space:nowrap;cursor:pointer;border:0;background:transparent;color:#52463c;font-size:12px;font-weight:650;padding:9px 13px;border-radius:6px;min-height:35px}
+.showroom-lighting-tabs button[aria-pressed=true]{background:#302924;color:#fff}
+
+.showroom-viewport{grid-column:1;grid-row:2;display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0;background:#fff}
+.showroom-canvas-wrap{position:relative;min-width:0;min-height:0;overflow:hidden}
+.showroom-canvas{position:absolute;inset:0;touch-action:none}
+.showroom-viewport-foot{display:flex;justify-content:space-between;gap:12px;padding:12px 20px;font-size:11px;color:#635951;background:rgba(255,253,250,.92);border-top:1px solid #eee9e3}
+.showroom-status{position:absolute;z-index:4;top:50%;left:50%;transform:translate(-50%,-50%);width:min(440px,85%);padding:20px;background:#fffefa;border-radius:9px;color:#342a24;text-align:center;box-shadow:0 12px 34px #221b1533}
+.showroom-status a{display:block;text-decoration:underline;margin-top:10px}
+
+/* Camera-driven annotation: tethered visually to the actual projected part. */
+.showroom-detail-callout{position:absolute;z-index:5;left:50%;top:42%;transform:translate(-50%,calc(-100% - 20px));width:max-content;max-width:min(255px,75%);display:grid;gap:5px;padding:12px 15px;background:#302923;color:#fffaf5;border-radius:9px;box-shadow:0 10px 34px #2d241d3d;pointer-events:none;text-align:left;animation:showroom-callout-in .24s ease-out both}
+.showroom-detail-callout strong{font-size:13px;line-height:1.35;font-weight:740}
+.showroom-detail-callout span{font-size:11px;line-height:1.45;color:#e3d7cd}
+.showroom-detail-callout:after{content:"";position:absolute;left:50%;bottom:-19px;width:1px;height:19px;background:#8c6c50}
+.showroom-detail-callout:before{content:"";position:absolute;left:calc(50% - 3px);bottom:-23px;width:7px;height:7px;background:#8c6c50;border:2px solid #fff9ef;border-radius:50%}
+@keyframes showroom-callout-in{from{opacity:0;transform:translate(-50%,calc(-100% - 10px))}to{opacity:1;transform:translate(-50%,calc(-100% - 20px))}}
+
+/* The sidebar is scrollable; product canvas never sits beneath controls. */
+.showroom-bottom{grid-column:2;grid-row:2;min-height:0;min-width:0;display:flex;flex-direction:column;background:#faf8f5;border-left:1px solid #e5ddd4}
+.showroom-panel-head{flex:0 0 auto;padding:22px 23px 18px;border-bottom:1px solid #e7dfd6}
+.showroom-panel-head h2{font:400 30px/1.08 var(--font-display);letter-spacing:-.04em;margin:0 0 9px;color:#302a24}
+.showroom-panel-head p{font-size:12px;line-height:1.55;color:#74685e;margin:0}
+.showroom-selections{min-height:0;flex:1;display:flex;flex-direction:column;gap:0;overflow-y:auto;overscroll-behavior:contain;padding:0 23px 20px;scrollbar-width:thin;scrollbar-color:#cbbfb3 transparent}
+.showroom-field{padding:18px 0;border-bottom:1px solid #e9e2db}
+.showroom-field-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.showroom-field-heading span{font-size:13px;font-weight:700;color:#362f28}
+.showroom-field-heading strong{font-size:11px;font-weight:640;color:#75665a;text-align:right;white-space:nowrap}
+.showroom-subheading{font-size:11px;font-weight:650;color:#75685d;margin:16px 0 9px}
+.showroom-option-set{display:flex;flex-wrap:wrap;gap:6px}
+.showroom-option-set button{border:1px solid #ded6cd;background:#fffdfa;border-radius:7px;padding:10px 12px;min-height:38px;color:#43382e;font-size:12px;cursor:pointer}
+.showroom-option-set button[aria-pressed=true]{background:#302924;border-color:#302924;color:#fff}
+.showroom-color-group{display:flex;flex-wrap:wrap;gap:7px}
+.showroom-color-group button{width:32px;height:32px;flex:0 0 32px;border:2px solid transparent;padding:3px;border-radius:50%;background:transparent;cursor:pointer}
+.showroom-color-group button[aria-pressed=true]{border-color:#44372c}
+.showroom-color-group button span{display:block;width:100%;height:100%;border-radius:50%;border:1px solid #9f988e}
+.showroom-motion{display:grid;gap:12px;width:100%;min-width:0}
+.showroom-motion label{display:flex;justify-content:space-between;gap:10px;color:#362f28;font-size:13px;font-weight:690}
+.showroom-motion label strong{font-size:12px;color:#685342}
+.showroom-motion input{width:100%;accent-color:#6e5641;cursor:pointer}
+.showroom-explode{margin:18px 0 3px;flex:0 0 auto;border:1px solid #332a24;background:#302924;color:#fffdfa;border-radius:7px;min-height:44px;width:100%;font-size:12px;font-weight:680;cursor:pointer}
+.showroom-explode[aria-pressed=true]{background:#f4eee7;color:#302924}
+.showroom-camera-section{margin-top:4px}
+.showroom-view-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.showroom-view-options button{border:1px solid #ddd4ca;border-radius:7px;background:#fffdfa;color:#483d34;padding:10px 5px;min-height:37px;font-size:11px;cursor:pointer;text-align:center}
+.showroom-view-options button[aria-pressed=true]{background:#302924;color:#fff;border-color:#302924}
+.showroom-panel-footer{flex:0 0 auto;padding:12px 22px;font-size:11px;line-height:1.5;color:#776d64;background:#f3efe9;border-top:1px solid #e9e2db}
+.showroom-icon-button:focus-visible,.showroom-lighting-tabs button:focus-visible,.showroom-view-options button:focus-visible,.showroom-option-set button:focus-visible,.showroom-color-group button:focus-visible,.showroom-explode:focus-visible{outline:3px solid #b48b65;outline-offset:2px}
+
+.showroom-after{display:flex;align-items:center;justify-content:space-between;gap:40px;padding-top:94px;padding-bottom:110px}
+.showroom-after>div{max-width:700px}
+.showroom-eyebrow{display:inline-block;color:#8d725d;font-size:13px;font-weight:650;margin-bottom:14px}
+.showroom-after h2{font:400 clamp(38px,4.4vw,60px)/1.12 var(--font-display);letter-spacing:-.045em;margin:0 0 16px}
+.showroom-after p{font-size:16px;line-height:1.7;color:var(--ink-muted);margin:0}
+.showroom-after .button{flex-shrink:0}
+
+@media(max-width:1050px){
+ .showroom-stage{width:calc(100% - 30px);grid-template-columns:minmax(0,1fr) 300px}
+ .showroom-topbar{padding:15px 18px}
+ .showroom-panel-head{padding:18px}
+ .showroom-selections{padding:0 18px 16px}
+ .showroom-panel-footer{padding:11px 18px}
+ .showroom-after{padding-top:65px}
+}
+@media(max-width:700px){
+ .showroom-intro{display:block}
+ .showroom-intro .showroom-configure-link{display:inline-block;margin-top:16px}
+ .showroom-stage{width:100%;height:auto;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(390px,57svh) auto;border-radius:0}
+ .showroom-topbar{grid-column:1;grid-row:1;padding:12px 15px;gap:12px}
+ .showroom-product-tag strong{font-size:13px}
+ .showroom-product-tag span{font-size:11px}
+ .showroom-topbar-actions{gap:7px}
+ .showroom-icon-button{padding:9px 10px;font-size:11px;min-height:37px}
+ .showroom-lighting-tabs button{font-size:11px;padding:8px 9px;min-height:31px}
+ .showroom-viewport{grid-column:1;grid-row:2;min-height:0}
+ .showroom-viewport-foot{padding:9px 12px;font-size:10px}
+ .showroom-viewport-foot span:last-child{display:none}
+ .showroom-bottom{grid-column:1;grid-row:3;border-left:0;border-top:1px solid #e5ddd4}
+ .showroom-panel-head{padding:17px 19px}
+ .showroom-panel-head h2{font-size:27px}
+ .showroom-selections{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:0 17px;overflow:visible;padding:0 19px 16px}
+ .showroom-field{min-width:0}
+ .showroom-option-set{gap:5px}
+ .showroom-option-set button{padding:9px 10px}
+ .showroom-camera-section{grid-column:1/-1}
+ .showroom-explode{align-self:center}
+ .showroom-panel-footer{padding:10px 19px}
+ .showroom-after{display:block;padding-top:56px;padding-bottom:75px}
+ .showroom-after .button{margin-top:22px}
+ .showroom-stage.is-expanded{height:100dvh;min-height:0;grid-template-rows:auto minmax(0,1fr) minmax(0,32dvh)}
+ .showroom-stage.is-expanded .showroom-bottom{overflow-y:auto;overscroll-behavior:contain}
+ .showroom-stage.is-expanded .showroom-selections{overflow:visible}
+ .showroom-stage.is-expanded .showroom-panel-footer{display:none}
+}
+@media(max-width:440px){
+ .showroom-topbar{align-items:flex-start}
+ .showroom-product-tag{max-width:37%}
+ .showroom-product-tag span{display:none}
+ .showroom-topbar-actions{flex-direction:column;align-items:flex-end}
+ .showroom-selections{grid-template-columns:minmax(0,1fr)}
+ .showroom-camera-section{grid-column:1}
+ .showroom-explode{margin-top:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .showroom-detail-callout{animation:none}
+}

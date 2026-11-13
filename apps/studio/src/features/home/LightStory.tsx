@@ -73,11 +73,16 @@ export function LightStory() {
       <canvas className="story-blinds" ref={canvasRef} aria-hidden="true" />
       <div className="story-sunlight" aria-hidden="true" />
       <div className="hero-content story-copy" ref={copyRef}>
-        <h1 id="home-title">A little more <em>room to live.</em></h1>
-        <p>Scroll to lift the blinds and let the daylight in.</p>
-        <Link className="button button-dark" to="/collection">Explore the collection <span aria-hidden="true">↗</span></Link>
+        <div className="story-heading">
+          <p className="story-context">S.A.C. Assembly — Product Studio</p>
+          <h1 id="home-title"><span>Blinds &amp; screens.</span><span>Made to fit.</span></h1>
+        </div>
+        <div className="story-action">
+          <p>Venetian blinds and pleated insect doors. Explore the systems, choose finishes and inspect the details that matter.</p>
+          <Link className="button button-light" to="/collection">Explore products <span aria-hidden="true">↗</span></Link>
+        </div>
       </div>
-      <p className="story-hint" aria-hidden="true">Scroll to reveal the room</p>
+      <p className="story-hint" aria-hidden="true">Scroll to open the blinds</p>
     </div>
   </section>;
 }

@@ -1,5 +1,5 @@
-export type ProductId = 'venetian' | 'idd' | 'odd';
-export type LegacyFile = 'venetian.html' | 'insect-door.html' | 'odd-door.html';
+export type ProductId = 'venetian' | 'idd' | 'odd' | 'roller';
+export type LegacyFile = 'venetian.html' | 'insect-door.html' | 'odd-door.html' | 'open-roller.html';
 
 export interface CatalogEntry {
   id: ProductId;

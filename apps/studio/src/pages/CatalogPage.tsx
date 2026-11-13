@@ -3,7 +3,12 @@ import { ProductCard } from '../components/ProductCard';
 
 export default function CatalogPage() {
   return <main className="catalog-page container" id="main-content">
-    <div className="page-lead"><h1>A considered collection.</h1><p>Choose a system to explore its finishes, moving parts and construction. Each viewer opens the existing interactive demonstrator while the modular engine is migrated.</p></div>
-    <div className="product-grid">{catalog.map((product, index) => <ProductCard key={product.id} product={product} priority={index === 0}/>)}</div>
+    <div className="page-lead">
+      <h1>Find the right system.</h1>
+      <p>Explore Venetian and roller blinds or choose an insect door for in-reveal or surface mounting. Each product has its own interactive configurator.</p>
+    </div>
+    <div className="product-grid">
+      {catalog.map((product, index) => <ProductCard key={product.id} product={product} priority={index === 0}/>)}
+    </div>
   </main>;
 }
