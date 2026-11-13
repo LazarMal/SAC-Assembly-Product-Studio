@@ -6,7 +6,7 @@ const base = `<html><head></head><body><header><nav class="shared-links"><a href
 test('all viewers link to all four products including Roller', () => {
   for (const name of ['venetian', 'idd', 'odd']) {
     const page = unifyProductNavigation(base, name);
-    expect((page.match(/data-product-link=/g) ?? []).length).toBe(5);
+    expect((page.match(/<a\b[^>]*\bdata-product-link=/g) ?? []).length).toBe(5);
     expect(page).toContain('href="../#/products/open-roller-blind"');
     expect(page).toContain('href="../#/collection"');
     expect(page).toContain('class="current" aria-current="page"');
